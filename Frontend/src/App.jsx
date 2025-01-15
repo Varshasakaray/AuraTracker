@@ -1,34 +1,54 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter,Route,Routes } from "react-router-dom";
+import HeroSection from "./components/Home/HomePage";
+import PublicNavbar from "./components/Navbar/PublicNavbar";
+import RegistrationForm from "./components/Users/Register";
+import LoginForm from "./components/Users/Login";
+import PrivateNavbar from "./components/Navbar/PrivateNavbar";
+import { getUserFromStorage } from "./utils/getUserFromStorage";
+import { useSelector } from "react-redux";
+import UserProfile from "./components/Users/UserProfile";
+import AuthRoute from "./components/Auth/AuthRoute";
+import AddTask from "./components/Task/AddTask";
+import TasksList from "./components/Task/TasksList";
+import UpdateTask from "./components/Task/UpdateTask";
 
 function App() {
-  const [count, setCount] = useState(0)
-
+  const token = getUserFromStorage();
+  const user=useSelector((state)=>state?.auth?.user);
+  console.log(token);
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <BrowserRouter>
+    {/*Navbar*/}
+    {user ?< PrivateNavbar/>:<PublicNavbar/>}
+    
+    
+    <Routes>
+      <Route path="/" element={<HeroSection/>}/>
+      <Route path="/register" element={<RegistrationForm/>}/>
+      <Route path="/login" element={<LoginForm/>}/>
+      <Route path="/add-task" element={
+        <AuthRoute>
+          <AddTask/>
+        </AuthRoute>
+      }/>
+      <Route path="/tasks" element={
+        <AuthRoute>
+          <TasksList/>
+        </AuthRoute>
+      }/>
+      <Route path="/update-task/:id" element={
+        <AuthRoute>
+          <UpdateTask/>
+        </AuthRoute>
+      }/>
+      <Route path="/profile" element={
+        <AuthRoute>
+          <UserProfile/>
+        </AuthRoute>
+      }/>
+
+    </Routes>
+    </BrowserRouter>
   )
 }
 
