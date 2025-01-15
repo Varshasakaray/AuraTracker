@@ -55,16 +55,16 @@ const taskController = {
     taskToUpdate.name = normalizedName || taskToUpdate.name;
     taskToUpdate.type = type || taskToUpdate.type;
     const updatedTask = await taskToUpdate.save();
-    //Update affected transaction
-    if (oldName !== updatedTask.name) {
-      await Transaction.updateMany(
-        {
-          user: req.user,
-          Task: oldName,
-        },
-        { $set: { Task: updatedTask.name } }
-      );
-    }
+    // //Update affected transaction
+    // if (oldName !== updatedTask.name) {
+    //   await Transaction.updateMany(
+    //     {
+    //       user: req.user,
+    //       Task: oldName,
+    //     },
+    //     { $set: { Task: updatedTask.name } }
+    //   );
+    // }
     res.json(updatedTask);
   }),
   //! delete
@@ -81,11 +81,11 @@ const taskController = {
     }
 
     try {
-      // If needed, update transactions before deletion
-      await Transaction.updateMany(
-        { user: req.user, Task: task.name },
-        { $set: { Task: "Uncategorized" } }
-      );
+      // // If needed, update transactions before deletion
+      // await Transaction.updateMany(
+      //   { user: req.user, Task: task.name },
+      //   { $set: { Task: "Uncategorized" } }
+      // );
 
       // Delete the task
       await Task.findByIdAndDelete(req.params.id);
