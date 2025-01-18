@@ -11,6 +11,9 @@ import AuthRoute from "./components/Auth/AuthRoute";
 import AddTask from "./components/Task/AddTask";
 import TasksList from "./components/Task/TasksList";
 import UpdateTask from "./components/Task/UpdateTask";
+import Dashboard from "./components/Users/Dashboard";
+import ExamDashboard from "./components/Users/Exam";
+import TimeTable from "./components/Users/TimeTable";
 
 function App() {
   const token = getUserFromStorage();
@@ -44,6 +47,21 @@ function App() {
       <Route path="/profile" element={
         <AuthRoute>
           <UserProfile/>
+        </AuthRoute>
+      }/>
+      <Route path="/dashboard" element={
+        <AuthRoute>
+          <Dashboard/>
+        </AuthRoute>
+      }/>
+      <Route path="/examdashboard" element={
+        <AuthRoute>
+          <ExamDashboard/>
+        </AuthRoute>
+      }/>
+      <Route path="/timetable" element={
+        <AuthRoute>
+          <TimeTable/>
         </AuthRoute>
       }/>
 

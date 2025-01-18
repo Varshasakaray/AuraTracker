@@ -1,5 +1,5 @@
 import express from 'express';
-import usersController from '../controllers/UserController.js';
+import usersController from '../controllers/userController.js';
 import isAuthenticated from '../middlewares/isAuth.js';
 
 
