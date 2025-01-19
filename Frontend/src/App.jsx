@@ -1,4 +1,4 @@
-import { BrowserRouter,Route,Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import HeroSection from "./components/Home/HomePage";
 import PublicNavbar from "./components/Navbar/PublicNavbar";
 import RegistrationForm from "./components/Users/Register";
@@ -17,57 +17,123 @@ import TimeTable from "./components/Users/TimeTable";
 
 function App() {
   const token = getUserFromStorage();
-  const user=useSelector((state)=>state?.auth?.user);
+  const user = useSelector((state) => state?.auth?.user);
   console.log(token);
+
   return (
     <BrowserRouter>
-    {/*Navbar*/}
-    {user ?< PrivateNavbar/>:<PublicNavbar/>}
-    
-    
-    <Routes>
-      <Route path="/" element={<HeroSection/>}/>
-      <Route path="/register" element={<RegistrationForm/>}/>
-      <Route path="/login" element={<LoginForm/>}/>
-      <Route path="/add-task" element={
-        <AuthRoute>
-          <AddTask/>
-        </AuthRoute>
-      }/>
-      <Route path="/tasks" element={
-        <AuthRoute>
-          <TasksList/>
-        </AuthRoute>
-      }/>
-      <Route path="/update-task/:id" element={
-        <AuthRoute>
-          <UpdateTask/>
-        </AuthRoute>
-      }/>
-      <Route path="/profile" element={
-        <AuthRoute>
-          <UserProfile/>
-        </AuthRoute>
-      }/>
-      <Route path="/dashboard" element={
-        <AuthRoute>
-          <Dashboard/>
-        </AuthRoute>
-      }/>
-      <Route path="/examdashboard" element={
-        <AuthRoute>
-          <ExamDashboard/>
-        </AuthRoute>
-      }/>
-      <Route path="/timetable" element={
-        <AuthRoute>
-          <TimeTable/>
-        </AuthRoute>
-      }/>
+      <Routes>
+        {/* Public Routes */}
+        <Route
+          path="/"
+          element={
+            <>
+              <PublicNavbar />
+              <HeroSection />
+            </>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <>
+              <PublicNavbar />
+              <RegistrationForm />
+            </>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <>
+              <PublicNavbar />
+              <LoginForm />
+            </>
+          }
+        />
 
-    </Routes>
+        {/* Authenticated Routes */}
+        <Route
+          path="/add-task"
+          element={
+            <AuthRoute>
+              <>
+                <PrivateNavbar />
+                <AddTask />
+              </>
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="/tasks"
+          element={
+            <AuthRoute>
+              <>
+                <PrivateNavbar />
+                <TasksList />
+              </>
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="/update-task/:id"
+          element={
+            <AuthRoute>
+              <>
+                <PrivateNavbar />
+                <UpdateTask />
+              </>
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <AuthRoute>
+              <>
+                <PrivateNavbar />
+                <UserProfile />
+              </>
+            </AuthRoute>
+          }
+        />
+
+        {/* Dashboard Route Without Private Navbar */}
+        <Route
+          path="/dashboard"
+          element={
+            <AuthRoute>
+              <Dashboard />
+            </AuthRoute>
+          }
+        />
+
+        {/* Other Authenticated Routes */}
+        <Route
+          path="/examdashboard"
+          element={
+            <AuthRoute>
+              <>
+                <PrivateNavbar />
+                <ExamDashboard />
+              </>
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="/timetable"
+          element={
+            <AuthRoute>
+              <>
+                <PrivateNavbar />
+                <TimeTable />
+              </>
+            </AuthRoute>
+          }
+        />
+      </Routes>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;

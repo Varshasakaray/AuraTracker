@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 // Validation Schema
 const validationSchema = Yup.object({
-  name: Yup.string().required("Name is required"),
+  username: Yup.string().required("Name is required"),
   email: Yup.string()
     .email("Invalid email address")
     .required("Email is required"),
@@ -28,7 +28,7 @@ const validationSchema = Yup.object({
     .required("Semester is required"),
   DOB: Yup.date().required("Date of Birth is required"),
   course: Yup.string().required("Course is required"),
-  regno: Yup.string().required("Registration number is required"),
+  regnum: Yup.string().required("Registration number is required"),
   agreeToTerms: Yup.boolean().oneOf(
     [true],
     "You must agree to the terms and conditions"
@@ -46,7 +46,7 @@ const RegistrationForm = () => {
 
   const formik = useFormik({
     initialValues: {
-      name: "",
+      username: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -54,7 +54,7 @@ const RegistrationForm = () => {
       semester: "",
       DOB: "",
       course: "",
-      regno: "",
+      regnum: "",
       agreeToTerms: false,
     },
     validationSchema: validationSchema,
@@ -225,14 +225,14 @@ const RegistrationForm = () => {
       {/* Registration Number */}
       <div className="relative">
         <input
-          id="regno"
+          id="regnum"
           type="text"
-          {...formik.getFieldProps("regno")}
+          {...formik.getFieldProps("regnum")}
           placeholder="Registration Number"
           className="pl-4 pr-4 py-2 w-full rounded-md border border-gray-300 focus:border-blue-500 focus:ring-blue-500"
         />
-        {formik.touched.regno && formik.errors.regno && (
-          <span className="text-xs text-red-500">{formik.errors.regno}</span>
+        {formik.touched.regnum && formik.errors.regnum && (
+          <span className="text-xs text-red-500">{formik.errors.regnum}</span>
         )}
       </div>
 

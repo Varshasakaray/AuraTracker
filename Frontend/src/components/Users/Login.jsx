@@ -35,11 +35,12 @@ const LoginForm = () => {
         validationSchema:validationSchema,
         //Submit
         onSubmit:(values)=>{
-            console.log(values);
+            // console.log(values);
             //http request
             mutateAsync(values)
             .then((data)=>{
                 //dispatch
+                // console.log(data);
                 dispatch(loginAction(data));
                 //save the user into localStorage
                 localStorage.setItem("userInfo",JSON.stringify(data));

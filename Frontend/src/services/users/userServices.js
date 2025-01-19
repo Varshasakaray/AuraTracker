@@ -5,17 +5,23 @@ import axios from 'axios';
 const token = getUserFromStorage();
 
 // Login
-export const loginAPI = async ({ email, password }) => {
+export const loginAPI = async ({ email, password,name, mobileNo, semester, DOB, course, regnum }) => {
     const response = await axios.post(`${BASE_URL}/users/login`, {
         email,
         password,
+        name,
+        mobileNo,
+        semester,
+        DOB,
+        course,
+        regnum,
     });
     // Return a promise
     return response.data;
 }
 
 // Register
-export const registerAPI = async ({ email, password, name, mobileNo, semester, DOB, course, regno }) => {
+export const registerAPI = async ({ email, password, name, mobileNo, semester, DOB, course, regnum }) => {
     const response = await axios.post(`${BASE_URL}/users/register`, {
         email,
         password,
@@ -24,7 +30,7 @@ export const registerAPI = async ({ email, password, name, mobileNo, semester, D
         semester,
         DOB,
         course,
-        regno,
+        regnum,
     });
     // Return a promise
     return response.data;
@@ -44,7 +50,7 @@ export const changePasswordAPI = async (newPassword) => {
 }
 
 // Update Profile
-export const updateProfileAPI = async ({ email, name, mobileNo, semester, DOB, course, regno }) => {
+export const updateProfileAPI = async ({ email, name, mobileNo, semester, DOB, course, regnum }) => {
     const response = await axios.put(`${BASE_URL}/users/update-profile`, {
         email,
         name,
@@ -52,7 +58,7 @@ export const updateProfileAPI = async ({ email, name, mobileNo, semester, DOB, c
         semester,
         DOB,
         course,
-        regno,
+        regnum,
     }, {
         headers: {
             Authorization: `Bearer ${token}`,
@@ -61,3 +67,5 @@ export const updateProfileAPI = async ({ email, name, mobileNo, semester, DOB, c
     // Return a promise
     return response.data;
 }
+
+

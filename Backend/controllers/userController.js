@@ -6,11 +6,11 @@ import jwt from 'jsonwebtoken';
 const usersController = {
     // Register
     register: asyncHandler(async (req, res) => {
-        const { name, email, password, mobileNo, semester, DOB, course, regno } = req.body;
+        const { username, email, password, mobileNo, semester, DOB, course, regnum } = req.body;
         console.log(req.body);
         
         // Validate required fields
-        if (!name || !email || !password || !mobileNo || !semester || !DOB || !course || !regno) {
+        if (!username || !email || !password || !mobileNo || !semester || !DOB || !course || !regnum) {
             throw new Error("Please fill all required fields");
         }
 
@@ -26,26 +26,26 @@ const usersController = {
 
         // Create new user
         const userCreated = await User.create({
-            name,
+            username,
             email,
             password: hashedPassword,
             mobileNo,
             semester,
             DOB,
             course,
-            regno
+            regnum
         });
 
         console.log(req.body);
         res.json({
-            name: userCreated.name,
+            username: userCreated.username,
             email: userCreated.email,
             id: userCreated._id,
             mobileNo: userCreated.mobileNo,
             semester: userCreated.semester,
             DOB: userCreated.DOB,
             course: userCreated.course,
-            regno: userCreated.regno
+            regnum: userCreated.regnum
         });
     }),
 
@@ -69,14 +69,19 @@ const usersController = {
         const token = jwt.sign({ id: user._id }, 'appKey', {
             expiresIn: "30d",
         });
-
+        console.log(user);
         // Send the response
         res.json({
             message: "Login successful",
             token,
             id: user._id,
             email: user.email,
-            username: user.name,  // Changed to "name" based on schema
+            username: user.username,  // Changed to "name" based on schema
+            mobileNo: user.mobileNo,
+            semester: user.semester,
+            DOB: user.DOB,
+            course: user.course,
+            regnum: user.regnum,
         });
     }),
 
@@ -90,13 +95,13 @@ const usersController = {
 
         // Send the response
         res.json({
-            name: user.name,
+            username: user.username,
             email: user.email,
             mobileNo: user.mobileNo,
             semester: user.semester,
             DOB: user.DOB,
             course: user.course,
-            regno: user.regno,
+            regnum: user.regnum,
         });
     }),
 
@@ -124,12 +129,12 @@ const usersController = {
 
     // Update User Profile
     updateUserProfile: asyncHandler(async (req, res) => {
-        const { email, name, mobileNo, semester, DOB, course, regno } = req.body;
+        const { email, username, mobileNo, semester, DOB, course, regnum } = req.body;
 
         // Find and update the user
         const updatedUser = await User.findByIdAndUpdate(
             req.user,
-            { email, name, mobileNo, semester, DOB, course, regno },
+            { email, username, mobileNo, semester, DOB, course, regnum },
             { new: true }
         );
 
@@ -137,13 +142,13 @@ const usersController = {
         res.json({
             message: "Profile updated successfully",
             updatedUser: {
-                name: updatedUser.name,
+                username: updatedUser.username,
                 email: updatedUser.email,
                 mobileNo: updatedUser.mobileNo,
                 semester: updatedUser.semester,
                 DOB: updatedUser.DOB,
                 course: updatedUser.course,
-                regno: updatedUser.regno
+                regnum: updatedUser.regnum
             }
         });
     })
