@@ -2,13 +2,15 @@ import React from "react";
 import { Link } from "react-router-dom";
 import AlertMessage from "../Alert/AlertMessage";
 import { getUserFromStorage } from "../../utils/getUserFromStorage";
+import { FaBlackTie } from "react-icons/fa";
+import { AiOutlinePlus } from "react-icons/ai"
 
 const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem("userInfo") || null);
   console.log(user);
   return (
-    <div className="relative">
-      <header className="fixed top-0 left-0 w-full z-10 bg-white shadow-lg ">
+    <div className="relative bg-gray-900 text-white">
+      <header className="fixed top-0 left-0 w-full z-10 bg-white shadow-lg text-black">
         <div className="flex items-center p-4 gap-3">
           <div className="flex items-center gap-2 mr-auto">
             <img src=".src/images/logo.png" alt="University Logo" className="w-8 h-8" />
@@ -76,31 +78,31 @@ const Dashboard = () => {
 
         <main className="flex-1 mt-6 pl-72">
           <h1 className="text-2xl font-extrabold">Attendance</h1>
-          <div className="grid grid-cols-5 gap-6 mt-4">
+          <div className="grid grid-cols-5 gap-6 mt-4 text-black">
             {[
               {
-                icon: "architecture",
+                icon: "Credit:4",
                 name: "Engineering Graphics",
                 attended: 12,
                 total: 14,
                 percent: 86,
               },
               {
-                icon: "functions",
+                icon: "Credit:4",
                 name: "Mathematical Engineering",
                 attended: 27,
                 total: 29,
                 percent: 93,
               },
               {
-                icon: "computer",
+                icon: "Credit:4",
                 name: "Computer Architecture",
                 attended: 27,
                 total: 30,
                 percent: 81,
               },
               {
-                icon: "dns",
+                icon: "Credit:4",
                 name: "Database Management",
                 attended: 24,
                 total: 25,
@@ -127,8 +129,14 @@ const Dashboard = () => {
                 <small className="text-muted block mt-2">Last 24 Hours</small>
               </div>
             ))}
-            <div className="grid grid-cols-5 gap-6 mt-4">
-              <h4>Hello this is a button</h4>
+            {/* Add button with transparent white background */}
+            <div
+              className="bg-white/50 p-6 rounded-2xl shadow-lg hover:shadow-none transition duration-300 flex flex-col items-center justify-center cursor-pointer"
+              onClick={() => console.log('Add new subject')}>
+                <Link to="/add-subject">
+                  <AiOutlinePlus className="text-black text-4xl" />
+                  <h3 className="mt-4 text-lg font-medium text-black-500">Add Subject</h3>
+                </Link>
             </div>
           </div>
 
@@ -148,8 +156,8 @@ const Dashboard = () => {
             >
               X
             </span>
-            <table className="mt-4 w-full bg-white rounded-xl shadow-lg">
-              <thead>
+            <table className="mt-4 w-full bg-white rounded-xl shadow-lg ">
+              <thead className="text-black">
                 <tr>
                   <th className="text-left p-4">Time</th>
                   <th className="text-left p-4">Room No.</th>
@@ -164,8 +172,8 @@ const Dashboard = () => {
 
         <div className="w-72">
           <div className="bg-white p-6 rounded-xl shadow-lg">
-            <h2 className="text-xl font-semibold">Announcements</h2>
-            <div className="space-y-4 mt-4">
+            <h2 className="text-xl font-semibold text-black">Announcements</h2>
+            <div className="space-y-4 mt-4 text-black">
               {[
                 {
                   type: "Academic",
@@ -193,7 +201,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="bg-white p-6 mt-8 rounded-xl shadow-lg">
+          <div className="bg-white p-6 mt-8 rounded-xl shadow-lg text-black">
             <h2 className="text-xl font-semibold">Teachers on leave</h2>
             <div className="space-y-4 mt-4">
               {[

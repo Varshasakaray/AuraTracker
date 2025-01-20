@@ -14,6 +14,8 @@ import UpdateTask from "./components/Task/UpdateTask";
 import Dashboard from "./components/Users/Dashboard";
 import ExamDashboard from "./components/Users/Exam";
 import TimeTable from "./components/Users/TimeTable";
+import AddSubject from "./components/Attendance/AddSubject";
+
 
 function App() {
   const token = getUserFromStorage();
@@ -107,26 +109,36 @@ function App() {
             </AuthRoute>
           }
         />
-
-        {/* Other Authenticated Routes */}
+        
         <Route
-          path="/examdashboard"
+          path="/add-subject"
           element={
             <AuthRoute>
               <>
                 <PrivateNavbar />
-                <ExamDashboard />
+                <AddSubject />
               </>
             </AuthRoute>
           }
         />
         <Route
-          path="/timetable"
+          path="/tasks"
           element={
             <AuthRoute>
               <>
                 <PrivateNavbar />
-                <TimeTable />
+                <TasksList />
+              </>
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="/update-task/:id"
+          element={
+            <AuthRoute>
+              <>
+                <PrivateNavbar />
+                <UpdateTask />
               </>
             </AuthRoute>
           }

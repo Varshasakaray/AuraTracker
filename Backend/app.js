@@ -4,7 +4,9 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import errorHandler from './middlewares/errorHandlerMiddleware.js';
 import taskRouter from './routes/taskRouter.js';
+import attendanceRouter from './routes/attendanceRouter.js';
 const app= express();
+
 app.use(express.json());
 
 
@@ -20,6 +22,7 @@ const corsOptions={
 app.use(cors(corsOptions));
 app.use("/",userRouter);
 app.use("/",taskRouter);
+app.use("/",attendanceRouter);
 app.use(errorHandler);
 
 const PORT=process.env.PORT || 8000;

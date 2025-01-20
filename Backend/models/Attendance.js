@@ -8,8 +8,7 @@ const attendanceSchema=new mongoose.Schema({
     },
     subject:{
         type:String,
-        required:true,
-        default:"Uncategorized",
+        required:[true,'Subject name is required'],
     },
     totalClasses:{
         type:Number,
