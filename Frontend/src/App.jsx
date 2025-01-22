@@ -14,11 +14,52 @@ import UpdateTask from "./components/Task/UpdateTask";
 import Dashboard from "./components/Users/Dashboard";
 import ExamDashboard from "./components/Users/Exam";
 import TimeTable from "./components/Users/TimeTable";
+import AssignmentHeader from "./components/Header/AssignmentHeader";
+import ClassRoomLogin from "./components/ClassRoomLogin/ClassRoomLogin";
+import { IsUserRedirect, ProtectedRoute } from "./routes/Routes";
+import { useLocalContext } from "./context/context";
+import { useState, useEffect } from "react";
+import db from "./components/lib/Firebase";
+import JoinedClasses from "./components/JoindedClasses/JoinedClasses";
+import Main from "./components/Main/Main";
+
 
 function App() {
   const token = getUserFromStorage();
   const user = useSelector((state) => state?.auth?.user);
+  const { loggedInMail } = useLocalContext();
   console.log(token);
+  const [createdClasses, setCreatedClasses] = useState([]);
+  const [joinedClasses, setJoinedClasses] = useState([]);
+
+  useEffect(() => {
+    if (loggedInMail) {
+      let unsubscribe = db
+        .collection("CreatedClasses")
+        .doc(loggedInMail)
+        .collection("classes")
+        .onSnapshot((snapshot) => {
+          setCreatedClasses(snapshot.docs.map((doc) => doc.data()));
+        });
+      return () => unsubscribe();
+    }
+  }, [loggedInMail]);
+
+  console.log(createdClasses);
+
+  useEffect(() => {
+    if (loggedInMail) {
+      let unsubcribe = db
+        .collection("JoinedClasses")
+        .doc(loggedInMail)
+        .collection("classes")
+        .onSnapshot((snapshot) => {
+          setJoinedClasses(snapshot.docs.map((doc) => doc.data()));
+        });
+      return () => unsubcribe();
+    }
+  }, [loggedInMail]);
+  console.log(joinedClasses);
 
   return (
     <BrowserRouter>
@@ -51,7 +92,6 @@ function App() {
             </>
           }
         />
-
         {/* Authenticated Routes */}
         <Route
           path="/add-task"
@@ -100,6 +140,33 @@ function App() {
 
         {/* Dashboard Route Without Private Navbar */}
         <Route
+          path="/classroomlogin"
+          element={
+            <IsUserRedirect user={loggedInMail} loggedInPath="/assignment">
+              <ClassRoomLogin />
+            </IsUserRedirect>
+          }
+        />
+        <Route
+          path="/assignment"
+          element={
+            <ProtectedRoute user={loggedInMail}>
+              <PrivateNavbar />
+              <AssignmentHeader />
+              <ol className="joined">
+                {createdClasses.map((item) => (
+                  <JoinedClasses classData={item} />
+                ))}
+                {joinedClasses.map((item) => (
+                  <JoinedClasses classData={item} />
+                ))}
+              </ol>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Dashboard Route Without Private Navbar */}
+        <Route
           path="/dashboard"
           element={
             <AuthRoute>
@@ -108,18 +175,6 @@ function App() {
           }
         />
 
-        {/* Other Authenticated Routes */}
-        <Route
-          path="/examdashboard"
-          element={
-            <AuthRoute>
-              <>
-                <PrivateNavbar />
-                <ExamDashboard />
-              </>
-            </AuthRoute>
-          }
-        />
         <Route
           path="/timetable"
           element={
@@ -131,6 +186,36 @@ function App() {
             </AuthRoute>
           }
         />
+
+        {/* Dynamic Routes for Created Classes */}
+        {createdClasses.map((item, index) => (
+          <Route
+            key={index}
+            path={`/${item.id}`}
+            element={
+              <ProtectedRoute user={loggedInMail}>
+                <PrivateNavbar />
+                
+                <Main classData={item} />
+              </ProtectedRoute>
+            }
+          />
+        ))}
+
+        {/* Dynamic Routes for Joined Classes */}
+        {joinedClasses.map((item,index) => (
+          <Route
+            key={index}
+            path={`/${item.id}`}
+            element={
+              <ProtectedRoute user={loggedInMail}>
+                <PrivateNavbar />
+                
+                <Main classData={item}/>
+              </ProtectedRoute>
+            }
+          />
+        ))}
       </Routes>
     </BrowserRouter>
   );

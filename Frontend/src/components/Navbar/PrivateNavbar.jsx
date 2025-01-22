@@ -6,42 +6,36 @@ import { IoLogOutOutline } from "react-icons/io5";
 import { SiAuthy } from "react-icons/si";
 import { useDispatch } from "react-redux";
 import { logoutAction } from "../../redux/slice/authSlice";
-import { HiSun, HiMoon } from "react-icons/hi"; // Importing icons for light and dark mode
+import { HiSun, HiMoon } from "react-icons/hi";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
 export default function PrivateNavbar() {
-  // Dispatch
   const dispatch = useDispatch();
-
-  // Theme state
   const [darkMode, setDarkMode] = useState(false);
 
-  // Theme toggle handler
   const toggleTheme = () => {
     setDarkMode(!darkMode);
-    // Optional: Save the theme preference to local storage
     localStorage.setItem("theme", darkMode ? "light" : "dark");
   };
 
-  // Logout handler
   const logoutHandler = () => {
+    console.log("logout");
     dispatch(logoutAction());
     localStorage.removeItem("userInfo");
   };
 
-  // Apply theme class to the body
   useEffect(() => {
     if (darkMode) {
       document.body.classList.add("dark");
-      document.body.style.backgroundColor = "#1a202c"; // Dark background for the body
-      document.body.style.color = "#e2e8f0"; // Light text color
+      document.body.style.backgroundColor = "#1a202c";
+      document.body.style.color = "#e2e8f0";
     } else {
       document.body.classList.remove("dark");
-      document.body.style.backgroundColor = "#ffffff"; // Light background for the body
-      document.body.style.color = "#1a202c"; // Dark text color
+      document.body.style.backgroundColor = "#ffffff";
+      document.body.style.color = "#1a202c";
     }
   }, [darkMode]);
 
@@ -80,7 +74,6 @@ export default function PrivateNavbar() {
                     </Link>
                   </div>
                   <div className="hidden md:ml-6 md:flex md:space-x-8">
-                    {/* Links */}
                     <Link
                       to="/add-task"
                       className={darkMode
@@ -113,6 +106,14 @@ export default function PrivateNavbar() {
                     >
                       Dashboard
                     </Link>
+                    <Link
+                      to="/assignment"
+                      className={darkMode
+                        ? "inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-300 hover:border-gray-700 hover:text-gray-400"
+                        : "inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"}
+                    >
+                      Assignment
+                    </Link>
                   </div>
                 </div>
                 <div className="flex items-center">
@@ -128,7 +129,6 @@ export default function PrivateNavbar() {
                       <span>Logout</span>
                     </button>
                   </div>
-                  {/* Theme toggle */}
                   <button
                     onClick={toggleTheme}
                     className="ml-4 text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"

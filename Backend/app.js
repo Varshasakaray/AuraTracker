@@ -4,26 +4,41 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import errorHandler from './middlewares/errorHandlerMiddleware.js';
 import taskRouter from './routes/taskRouter.js';
-const app= express();
+import Announcement from './models/Announcement.js';
+
+
+const app = express();
 app.use(express.json());
 
-
-//connect to mongodb
+// Connect to MongoDB
 mongoose.connect("mongodb://localhost:27017/aura-tracker")
-.then(()=>console.log("Connected to mongodb"))
-.catch((e)=>console.log(e));
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((e) => console.log(e));
 
-//cors  config
-const corsOptions={
-    origin:['http://localhost:5173']
-}
+
+// CORS config
+const corsOptions = {
+  origin: ['http://localhost:5173'],
+};
 app.use(cors(corsOptions));
-app.use("/",userRouter);
-app.use("/",taskRouter);
+
+app.use("/", userRouter);
+app.use("/", taskRouter);
 app.use(errorHandler);
 
-const PORT=process.env.PORT || 8000;
+// API to fetch all files
+app.get("/api/v1/files", async (req, res) => {
+  try{
+    const files = await Announcement.find();
+    res.status(200).json(files);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to fetch files" });
+  }
+})
 
-app.listen(PORT, () =>{
-    console.log('listening on port ${PORT}');
+const PORT = process.env.PORT || 8000;
+
+app.listen(PORT, () => {
+  console.log(`listening on port ${PORT}`); // <-- Corrected string interpolation
 });
