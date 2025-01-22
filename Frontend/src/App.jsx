@@ -22,6 +22,7 @@ import { useState, useEffect } from "react";
 import db from "./components/lib/Firebase";
 import JoinedClasses from "./components/JoindedClasses/JoinedClasses";
 import Main from "./components/Main/Main";
+import AddSubject from "./components/Attendance/AddSubject";
 
 
 function App() {
@@ -175,13 +176,36 @@ function App() {
           }
         />
 
+        
         <Route
-          path="/timetable"
+          path="/add-subject"
           element={
             <AuthRoute>
               <>
                 <PrivateNavbar />
-                <TimeTable />
+                <AddSubject />
+              </>
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="/tasks"
+          element={
+            <AuthRoute>
+              <>
+                <PrivateNavbar />
+                <TasksList />
+              </>
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="/update-task/:id"
+          element={
+            <AuthRoute>
+              <>
+                <PrivateNavbar />
+                <UpdateTask />
               </>
             </AuthRoute>
           }
