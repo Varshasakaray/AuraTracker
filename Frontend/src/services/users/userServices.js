@@ -21,11 +21,11 @@ export const loginAPI = async ({ email, password,name, mobileNo, semester, DOB, 
 }
 
 // Register
-export const registerAPI = async ({ email, password, name, mobileNo, semester, DOB, course, regnum }) => {
+export const registerAPI = async ({ email, password, username, mobileNo, semester, DOB, course, regnum }) => {
     const response = await axios.post(`${BASE_URL}/users/register`, {
         email,
         password,
-        name,
+        username,
         mobileNo,
         semester,
         DOB,

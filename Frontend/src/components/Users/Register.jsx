@@ -104,14 +104,14 @@ const RegistrationForm = () => {
       <div className="relative">
         <FaUser className="absolute top-3 left-3 text-gray-400" />
         <input
-          id="name"
+          id="username"
           type="text"
-          {...formik.getFieldProps("name")}
+          {...formik.getFieldProps("username")}
           placeholder="Name"
           className="pl-10 pr-4 py-2 w-full rounded-md border border-gray-300 focus:border-blue-500 focus:ring-blue-500"
         />
-        {formik.touched.name && formik.errors.name && (
-          <span className="text-xs text-red-500">{formik.errors.name}</span>
+        {formik.touched.username && formik.errors.username && (
+          <span className="text-xs text-red-500">{formik.errors.username}</span>
         )}
       </div>
 

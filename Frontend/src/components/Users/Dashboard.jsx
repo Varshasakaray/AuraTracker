@@ -1,11 +1,28 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import AlertMessage from "../Alert/AlertMessage";
 import { getUserFromStorage } from "../../utils/getUserFromStorage";
 import { FaBlackTie } from "react-icons/fa";
 import { AiOutlinePlus } from "react-icons/ai"
+import { listSubjectsAPI } from "../../services/attendance/attendanceService";
+
 
 const Dashboard = () => {
+  const [subjects, setSubjects] = useState([]);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      try {
+        const data = await listSubjectsAPI();
+        setSubjects(data);
+      } catch (err) {
+        setError(err.response?.data?.message || "Failed to fetch data.");
+      }
+    };
+
+    fetchSubjects();
+  }, []);
   const user = JSON.parse(localStorage.getItem("userInfo") || null);
   console.log(user);
   return (
@@ -67,9 +84,9 @@ const Dashboard = () => {
               <h5 className="font-medium">Course</h5>
               <p>{user.course}</p>
               <h5 className="font-medium">DOB</h5>
-              <p>{user.DOB}</p>
+              <p>{user.DOB} </p>
               <h5 className="font-medium">Contact</h5>
-              <p>{user.mobileNo}</p>
+              <p>{user.mobileNo} </p>
               <h5 className="font-medium">Email</h5>
               <p>{user.email}</p>
             </div>
@@ -78,55 +95,49 @@ const Dashboard = () => {
 
         <main className="flex-1 mt-6 pl-72">
           <h1 className="text-2xl font-extrabold">Attendance</h1>
+
+          {error && <p className="text-red-500">{error}</p>}
+
           <div className="grid grid-cols-5 gap-6 mt-4 text-black">
-            {[
-              {
-                icon: "Credit:4",
-                name: "Engineering Graphics",
-                attended: 12,
-                total: 14,
-                percent: 86,
-              },
-              {
-                icon: "Credit:4",
-                name: "Mathematical Engineering",
-                attended: 27,
-                total: 29,
-                percent: 93,
-              },
-              {
-                icon: "Credit:4",
-                name: "Computer Architecture",
-                attended: 27,
-                total: 30,
-                percent: 81,
-              },
-              {
-                icon: "Credit:4",
-                name: "Database Management",
-                attended: 24,
-                total: 25,
-                percent: 96,
-              },
-            ].map((subject, index) => (
+            {subjects.map((subject) => (
               <div
-                key={index}
+                key={subject.id}
                 className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-none transition duration-300"
               >
-                <span className="material-icons-sharp text-lg bg-blue-500 text-white rounded-full p-2">
-                  {subject.icon}
+                <span className="text-lg bg-blue-500 text-white rounded-full p-2">
+                  Credit: {subject.credit}
                 </span>
-                <h3 className="mt-4 text-lg font-medium">{subject.name}</h3>
-                <h2 className="mt-2 text-xl font-semibold">{`${subject.attended}/${subject.total}`}</h2>
+
+                <h3 className="mt-4 text-lg font-medium">{subject.subject}</h3>
+                <h2 className="mt-2 text-xl font-semibold">
+                  {`${subject.attendedClasses}/${subject.totalClasses}`}
+                </h2>
                 <div className="relative mt-4 w-20 h-20 mx-auto">
                   <svg className="w-full h-full">
-                    <circle cx="38" cy="38" r="36" className="stroke-blue-500 stroke-8 fill-none" />
+                    <circle
+                      cx="38"
+                      cy="38"
+                      r="36"
+                      stroke="currentColor"
+                      strokeWidth="8"
+                      fill="none"
+                      strokeDasharray={2 * Math.PI * 36}
+                      strokeDashoffset={
+                        2 *
+                        Math.PI *
+                        36 *
+                        ((100 - (subject.attendedClasses / subject.totalClasses) * 100) / 100)
+                      }
+                    />
                   </svg>
                   <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
-                    <p className="font-bold">{`${subject.percent}%`}</p>
+                    <p className="font-bold">{`${(
+                      (subject.attendedClasses / subject.totalClasses) *
+                      100
+                    ).toFixed(0)}%`}</p>
                   </div>
                 </div>
-                <small className="text-muted block mt-2">Last 24 Hours</small>
+                <small className="text-muted block mt-2">Last Updated</small>
               </div>
             ))}
             {/* Add button with transparent white background */}

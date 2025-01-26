@@ -16,11 +16,8 @@ const authSlice=createSlice({
         },
     },
 });
-
 //Generate actions
-
 export const {loginAction,logoutAction}=authSlice.actions;
-
 //Generate the reducers
 const authReducer=authSlice.reducer;
 export default authReducer;

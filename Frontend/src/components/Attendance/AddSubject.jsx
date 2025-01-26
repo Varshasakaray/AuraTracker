@@ -10,6 +10,8 @@ import { AddSubjectAPI } from "../../services/attendance/attendanceService";
 // Validation schema
 const validationSchema = Yup.object({
   subject: Yup.string().required("Subject name is required"),
+  credit:Yup.number()
+   .required("Credits are required"),
   attendedClasses: Yup.number()
     .required("Attended classes is required"),
     
@@ -27,6 +29,7 @@ const AddSubject = () => {
   const formik = useFormik({
     initialValues: {
       subject: "",
+      credit: 0,
       attendedClasses: 0,
       totalClasses: 1,
     },
@@ -80,6 +83,22 @@ const AddSubject = () => {
         />
         {formik.touched.subject && formik.errors.subject && (
           <p className="text-red-500 text-xs italic">{formik.errors.subject}</p>
+        )}
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="credit" className="text-gray-700 font-medium">
+          <SiDatabricks className="inline mr-2 text-blue-500" />
+          Credits
+        </label>
+        <input
+          type="number"
+          {...formik.getFieldProps("credit")}
+          placeholder="Subject Name"
+          id="credit"
+          className="w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 py-2 px-3"
+        />
+        {formik.touched.credit && formik.errors.credit && (
+          <p className="text-red-500 text-xs italic">{formik.errors.credit}</p>
         )}
       </div>
 

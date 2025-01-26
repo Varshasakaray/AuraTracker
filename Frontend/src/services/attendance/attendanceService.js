@@ -5,9 +5,10 @@ import axios from 'axios';
 //Get the token
 const token = getUserFromStorage();
 //Add
-export const AddSubjectAPI=async ({subject,attendedClasses,totalClasses})=>{
+export const AddSubjectAPI=async ({subject,credit,attendedClasses,totalClasses})=>{
     const response = await axios.post(`${BASE_URL}/subjects/create`,{
         subject,
+        credit,
         attendedClasses,
         totalClasses,
     },{
