@@ -10,6 +10,11 @@ const attendanceSchema=new mongoose.Schema({
         type:String,
         required:[true,'Subject name is required'],
     },
+    credit:{
+        type:Number,
+        required:true,
+        min:1,
+    },
     totalClasses:{
         type:Number,
         required:true,

@@ -4,8 +4,8 @@ import Attendance from "../models/Attendance.js";
 const attendanceController = {
   //!add
   create: asyncHandler(async (req, res) => {
-    const { subject,totalClasses,attendedClasses } = req.body;
-    if (!subject || !attendedClasses || !totalClasses) {
+    const { subject,credit,totalClasses,attendedClasses } = req.body;
+    if (!subject||!credit || !attendedClasses || !totalClasses) {
       throw new Error("Subject name and totalClasses are required");
     }
     //Convert the name to lowercase
@@ -22,8 +22,9 @@ const attendanceController = {
     }
     //! Create the Subject
     const newSubject = await Attendance.create({
-      name: normalizedSubject,
+      subject: normalizedSubject,
       user: req.user,
+      credit,
       attendedClasses,
       totalClasses,
     });
