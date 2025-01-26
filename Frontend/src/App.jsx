@@ -188,28 +188,6 @@ function App() {
             </AuthRoute>
           }
         />
-        <Route
-          path="/tasks"
-          element={
-            <AuthRoute>
-              <>
-                <PrivateNavbar />
-                <TasksList />
-              </>
-            </AuthRoute>
-          }
-        />
-        <Route
-          path="/update-task/:id"
-          element={
-            <AuthRoute>
-              <>
-                <PrivateNavbar />
-                <UpdateTask />
-              </>
-            </AuthRoute>
-          }
-        />
 
         {/* Dynamic Routes for Created Classes */}
         {createdClasses.map((item, index) => (
@@ -219,7 +197,6 @@ function App() {
             element={
               <ProtectedRoute user={loggedInMail}>
                 <PrivateNavbar />
-                
                 <Main classData={item} />
               </ProtectedRoute>
             }
@@ -234,7 +211,6 @@ function App() {
             element={
               <ProtectedRoute user={loggedInMail}>
                 <PrivateNavbar />
-                
                 <Main classData={item}/>
               </ProtectedRoute>
             }

@@ -31,29 +31,29 @@ export const listSubjectsAPI=async ()=>{
     return response.data;
 }
 
-//Update
-export const updateSubjectAPI=async ({subject,attendedClasses,totalClasses})=>{
-    const response = await axios.put(`${BASE_URL}/subjects/update/${id}`,{
-        subject,
-        attendedClasses,
-        totalClasses,
-    },{
-        headers:{
-            Authorization:`Bearer ${token}`,
-        }
-    });
-    //return a promise
-    return response.data;
-}
+// //Update
+// export const updateSubjectAPI=async ({subject,attendedClasses,totalClasses})=>{
+//     const response = await axios.put(`${BASE_URL}/subjects/update/${id}`,{
+//         subject,
+//         attendedClasses,
+//         totalClasses,
+//     },{
+//         headers:{
+//             Authorization:`Bearer ${token}`,
+//         }
+//     });
+//     //return a promise
+//     return response.data;
+// }
 
 
 //Delete
-export const deleteTaskAPI=async (id)=>{
-    const response = await axios.delete(`${BASE_URL}/subjects/delete/${id}`,{
-        headers:{
-            Authorization:`Bearer ${token}`,
-        }
-    });
-    //return a promise
-    return response.data;
-}
+// export const deleteTaskAPI=async (id)=>{
+//     const response = await axios.delete(`${BASE_URL}/subjects/delete/${id}`,{
+//         headers:{
+//             Authorization:`Bearer ${token}`,
+//         }
+//     });
+//     //return a promise
+//     return response.data;
+// }
