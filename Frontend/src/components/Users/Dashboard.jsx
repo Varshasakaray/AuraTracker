@@ -1,14 +1,14 @@
+// src/pages/Dashboard.js
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AlertMessage from "../Alert/AlertMessage";
-import { getUserFromStorage } from "../../utils/getUserFromStorage";
-import { FaBlackTie } from "react-icons/fa";
 import { AiOutlinePlus } from "react-icons/ai";
 import {
   listSubjectsAPI,
   deleteSubjectAPI,
   updateSubjectAPI,
 } from "../../services/attendance/attendanceService";
+import DashboardNavbar from "../Navbar/DashboardNavbar";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -31,19 +31,15 @@ const Dashboard = () => {
 
   // Handle Delete
   const handleDelete = (id) => {
-    console.log("Deleting subject with id:", id);
     if (id) {
       deleteSubjectAPI(id)
         .then((response) => {
-          console.log("Subject deleted", response);
           setSubjects(subjects.filter((subject) => subject._id !== id)); // Update the state after deletion
         })
         .catch((error) => {
-          console.error("Error deleting subject:", error.message);
           alert("Error deleting subject");
         });
     } else {
-      console.error("No valid id provided to delete subject");
       alert("Invalid subject ID");
     }
   };
@@ -51,7 +47,6 @@ const Dashboard = () => {
   // Handle Edit
   const handleEdit = (subject) => {
     if (!subject || !subject._id) {
-      console.error("Invalid subject data:", subject);
       alert("Subject data is missing or invalid.");
       return;
     }
@@ -61,67 +56,15 @@ const Dashboard = () => {
   };
 
   const user = JSON.parse(localStorage.getItem("userInfo") || null);
-  console.log(user);
 
   return (
-    <div className="relative bg-gray-900 text-white">
-      <header className="fixed top-0 left-0 w-full z-10 bg-white shadow-lg text-black">
-        <div className="flex items-center p-4 gap-3">
-          <div className="flex items-center gap-2 mr-auto">
-            <img
-              src=".src/images/logo.png"
-              alt="University Logo"
-              className="w-8 h-8"
-            />
-            <h2>
-              U<span className="text-red-400">M</span>S
-            </h2>
-          </div>
-          <nav className="flex items-center ml-auto">
-            <Link
-              to="/profile"
-              className="mx-4 text-sm font-semibold hover:text-blue-600"
-            >
-              <h3>Home</h3>
-            </Link>
-            <Link
-              to="/timetable"
-              className="mx-4 text-sm font-semibold hover:text-blue-600"
-              onClick={() => timeTableAll()}
-            >
-              <h3>Time Table</h3>
-            </Link>
-            <Link
-              to="/examdashboard"
-              className="mx-4 text-sm font-semibold hover:text-blue-600"
-            >
-              <h3>Examination</h3>
-            </Link>
-            <Link
-              to="/profile"
-              className="mx-4 text-sm font-semibold hover:text-blue-600"
-            >
-              <h3>Change Password</h3>
-            </Link>
-            <Link
-              to="/logout"
-              className="mx-4 text-sm font-semibold hover:text-blue-600"
-            >
-              <h3>Logout</h3>
-            </Link>
-          </nav>
-          <div className="flex items-center cursor-pointer">
-            <span className="material-icons-sharp">person</span>
-          </div>
-          <div className="flex items-center bg-gray-200 p-2 rounded-full ml-4 cursor-pointer">
-            <span className="material-icons-sharp text-sm">light_mode</span>
-            <span className="material-icons-sharp text-sm">dark_mode</span>
-          </div>
-        </div>
-      </header>
+    <div className="bg-gray-900 text-white min-h-screen flex flex-col">
+      {/* Include the DashboardNavbar here */}
+      <DashboardNavbar user={user} />
 
-      <div className="flex gap-6 pt-16 mx-5 my-5">
-        <aside className="w-64 fixed top-16">
+      <div className="flex gap-6 pt-16 mx-5 my-5 flex-1">
+        {/* Sidebar */}
+        <aside className="w-64 fixed top-16 left-0 bg-gray-900 p-5">
           <div className="mt-8">
             <div className="flex items-center gap-4 border-b pb-4">
               <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-200">
@@ -147,7 +90,8 @@ const Dashboard = () => {
           </div>
         </aside>
 
-        <main className="flex-1 mt-6 pl-72">
+        {/* Main Content */}
+        <main className="flex-1 mt-6 pl-72 bg-gray-900">
           <h1 className="text-2xl font-extrabold">Attendance</h1>
 
           {error && <p className="text-red-500">{error}</p>}
@@ -177,27 +121,15 @@ const Dashboard = () => {
                       strokeWidth="8"
                       fill="none"
                       strokeDasharray={2 * Math.PI * 36}
-                      strokeDashoffset={
-                        2 *
-                        Math.PI *
-                        36 *
-                        ((100 -
-                          (subject.attendedClasses / subject.totalClasses) *
-                            100) /
-                          100)
-                      }
+                      strokeDashoffset={2 * Math.PI * 36 * ((100 - (subject.attendedClasses / subject.totalClasses) * 100) / 100)}
                     />
                   </svg>
                   <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
-                    <p className="font-bold">{`${(
-                      (subject.attendedClasses / subject.totalClasses) *
-                      100
-                    ).toFixed(0)}%`}</p>
+                    <p className="font-bold">{`${((subject.attendedClasses / subject.totalClasses) * 100).toFixed(0)}%`}</p>
                   </div>
                 </div>
 
                 <div className="flex gap-4 mt-4">
-                  {/* Edit Button */}
                   <button
                     key={subject._id}
                     onClick={() => handleEdit(subject)}
@@ -206,7 +138,6 @@ const Dashboard = () => {
                     Edit
                   </button>
 
-                  {/* Delete Button */}
                   <button
                     onClick={() => handleDelete(subject._id)}
                     className="bg-red-500 text-white text-sm px-2 py-2 rounded-lg shadow-md hover:bg-red-600 transition duration-300"
@@ -231,100 +162,7 @@ const Dashboard = () => {
               </Link>
             </div>
           </div>
-          <div className="mt-8">
-            <div className="flex justify-between items-center">
-              <span className="cursor-pointer text-xl" id="prevDay">
-                &lt;
-              </span>
-              <h2 className="text-lg font-semibold">Today's Timetable</h2>
-              <span className="cursor-pointer text-xl" id="nextDay">
-                &gt;
-              </span>
-            </div>
-            <span
-              className="bg-red-500 text-white p-2 rounded-full absolute top-0 right-0 mt-6 cursor-pointer"
-              onClick={() => timeTableAll()}
-            >
-              X
-            </span>
-            <table className="mt-4 w-full bg-white rounded-xl shadow-lg ">
-              <thead className="text-black">
-                <tr>
-                  <th className="text-left p-4">Time</th>
-                  <th className="text-left p-4">Room No.</th>
-                  <th className="text-left p-4">Subject</th>
-                  <th className="p-4"></th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
         </main>
-        <div className="w-72">
-          <div className="bg-white p-6 rounded-xl shadow-lg">
-            <h2 className="text-xl font-semibold text-black">Announcements</h2>
-            <div className="space-y-4 mt-4 text-black">
-              {[
-                {
-                  type: "Academic",
-                  message: "Summer training internship with Live Projects.",
-                  time: "2 Minutes Ago",
-                },
-                {
-                  type: "Co-curricular",
-                  message:
-                    "Global internship opportunity by Student organization.",
-                  time: "10 Minutes Ago",
-                },
-                {
-                  type: "Examination",
-                  message: "Instructions for Mid Term Examination.",
-                  time: "Yesterday",
-                },
-              ].map((update, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <p>
-                    <b>{update.type}</b> {update.message}
-                  </p>
-                  <small className="text-muted">{update.time}</small>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-white p-6 mt-8 rounded-xl shadow-lg text-black">
-            <h2 className="text-xl font-semibold">Teachers on leave</h2>
-            <div className="space-y-4 mt-4">
-              {[
-                {
-                  name: "The Professor",
-                  status: "Full Day",
-                  img: ".src/images/profile-2.jpeg",
-                },
-                {
-                  name: "Lisa Manobal",
-                  status: "Half Day",
-                  img: ".src/images/profile-3.jpg",
-                },
-                {
-                  name: "Himanshu Jindal",
-                  status: "Full Day",
-                  img: ".src/images/profile-4.jpg",
-                },
-              ].map((teacher, index) => (
-                <div key={index} className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full overflow-hidden">
-                    <img src={teacher.img} alt={teacher.name} />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">{teacher.name}</h3>
-                    <small className="text-muted">{teacher.status}</small>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
 
       <AlertMessage />

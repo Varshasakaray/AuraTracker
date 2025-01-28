@@ -23,6 +23,7 @@ import db from "./components/lib/Firebase";
 import JoinedClasses from "./components/JoindedClasses/JoinedClasses";
 import Main from "./components/Main/Main";
 import AddSubject from "./components/Attendance/AddSubject";
+import ExamList from "./components/Exam/ExamList";
 
 
 function App() {
@@ -203,6 +204,15 @@ function App() {
             </AuthRoute>
           }
         />
+        <Route
+          path="/exam-dashboard"
+          element={
+          <AuthRoute>
+            <ExamList />
+          </AuthRoute>
+          }
+        />
+
         
         <Route
           path="/tasks"

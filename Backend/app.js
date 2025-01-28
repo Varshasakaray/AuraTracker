@@ -6,6 +6,7 @@ import errorHandler from './middlewares/errorHandlerMiddleware.js';
 import taskRouter from './routes/taskRouter.js';
 import Announcement from './models/Announcement.js';
 import attendanceRouter from './routes/attendanceRouter.js';
+import examRouter from './routes/examRouter.js';
 
 
 const app = express();
@@ -29,6 +30,7 @@ app.use(cors(corsOptions));
 app.use("/",userRouter);
 app.use("/",taskRouter);
 app.use("/",attendanceRouter);
+app.use("/",examRouter);
 app.use(errorHandler);
 
 // API to fetch all files
