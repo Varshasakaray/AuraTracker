@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AlertMessage from "../Alert/AlertMessage";
 import { getUserFromStorage } from "../../utils/getUserFromStorage";
 import { FaBlackTie } from "react-icons/fa";
-import { AiOutlinePlus } from "react-icons/ai"
-import { listSubjectsAPI } from "../../services/attendance/attendanceService";
-
+import { AiOutlinePlus } from "react-icons/ai";
+import {
+  listSubjectsAPI,
+  deleteSubjectAPI,
+  updateSubjectAPI,
+} from "../../services/attendance/attendanceService";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [subjects, setSubjects] = useState([]);
   const [error, setError] = useState(null);
 
+  // Fetch subjects when the component mounts
   useEffect(() => {
     const fetchSubjects = async () => {
       try {
@@ -22,21 +27,61 @@ const Dashboard = () => {
     };
 
     fetchSubjects();
-  }, []);
+  }, []); // Empty array to run once when the component mounts
+
+  // Handle Delete
+  const handleDelete = (id) => {
+    console.log("Deleting subject with id:", id);
+    if (id) {
+      deleteSubjectAPI(id)
+        .then((response) => {
+          console.log("Subject deleted", response);
+          setSubjects(subjects.filter((subject) => subject._id !== id)); // Update the state after deletion
+        })
+        .catch((error) => {
+          console.error("Error deleting subject:", error.message);
+          alert("Error deleting subject");
+        });
+    } else {
+      console.error("No valid id provided to delete subject");
+      alert("Invalid subject ID");
+    }
+  };
+
+  // Handle Edit
+  const handleEdit = (subject) => {
+    if (!subject || !subject._id) {
+      console.error("Invalid subject data:", subject);
+      alert("Subject data is missing or invalid.");
+      return;
+    }
+
+    // Redirect to `/add-subject` with the subject data
+    navigate(`/add-subject/${subject._id}`);
+  };
+
   const user = JSON.parse(localStorage.getItem("userInfo") || null);
   console.log(user);
+
   return (
     <div className="relative bg-gray-900 text-white">
       <header className="fixed top-0 left-0 w-full z-10 bg-white shadow-lg text-black">
         <div className="flex items-center p-4 gap-3">
           <div className="flex items-center gap-2 mr-auto">
-            <img src=".src/images/logo.png" alt="University Logo" className="w-8 h-8" />
+            <img
+              src=".src/images/logo.png"
+              alt="University Logo"
+              className="w-8 h-8"
+            />
             <h2>
               U<span className="text-red-400">M</span>S
             </h2>
           </div>
           <nav className="flex items-center ml-auto">
-            <Link to="/profile" className="mx-4 text-sm font-semibold hover:text-blue-600">
+            <Link
+              to="/profile"
+              className="mx-4 text-sm font-semibold hover:text-blue-600"
+            >
               <h3>Home</h3>
             </Link>
             <Link
@@ -46,13 +91,22 @@ const Dashboard = () => {
             >
               <h3>Time Table</h3>
             </Link>
-            <Link to="/examdashboard" className="mx-4 text-sm font-semibold hover:text-blue-600">
+            <Link
+              to="/examdashboard"
+              className="mx-4 text-sm font-semibold hover:text-blue-600"
+            >
               <h3>Examination</h3>
             </Link>
-            <Link to="/profile" className="mx-4 text-sm font-semibold hover:text-blue-600">
+            <Link
+              to="/profile"
+              className="mx-4 text-sm font-semibold hover:text-blue-600"
+            >
               <h3>Change Password</h3>
             </Link>
-            <Link to="/logout" className="mx-4 text-sm font-semibold hover:text-blue-600">
+            <Link
+              to="/logout"
+              className="mx-4 text-sm font-semibold hover:text-blue-600"
+            >
               <h3>Logout</h3>
             </Link>
           </nav>
@@ -84,9 +138,9 @@ const Dashboard = () => {
               <h5 className="font-medium">Course</h5>
               <p>{user.course}</p>
               <h5 className="font-medium">DOB</h5>
-              <p>{user.DOB} </p>
+              <p>{user.DOB}</p>
               <h5 className="font-medium">Contact</h5>
-              <p>{user.mobileNo} </p>
+              <p>{user.mobileNo}</p>
               <h5 className="font-medium">Email</h5>
               <p>{user.email}</p>
             </div>
@@ -112,6 +166,7 @@ const Dashboard = () => {
                 <h2 className="mt-2 text-xl font-semibold">
                   {`${subject.attendedClasses}/${subject.totalClasses}`}
                 </h2>
+
                 <div className="relative mt-4 w-20 h-20 mx-auto">
                   <svg className="w-full h-full">
                     <circle
@@ -126,7 +181,10 @@ const Dashboard = () => {
                         2 *
                         Math.PI *
                         36 *
-                        ((100 - (subject.attendedClasses / subject.totalClasses) * 100) / 100)
+                        ((100 -
+                          (subject.attendedClasses / subject.totalClasses) *
+                            100) /
+                          100)
                       }
                     />
                   </svg>
@@ -137,20 +195,42 @@ const Dashboard = () => {
                     ).toFixed(0)}%`}</p>
                   </div>
                 </div>
+
+                <div className="flex gap-4 mt-4">
+                  {/* Edit Button */}
+                  <button
+                    key={subject._id}
+                    onClick={() => handleEdit(subject)}
+                    className="bg-yellow-500 text-white text-sm  px-4 py-2 rounded-lg shadow-md hover:bg-yellow-600 transition duration-300"
+                  >
+                    Edit
+                  </button>
+
+                  {/* Delete Button */}
+                  <button
+                    onClick={() => handleDelete(subject._id)}
+                    className="bg-red-500 text-white text-sm px-2 py-2 rounded-lg shadow-md hover:bg-red-600 transition duration-300"
+                  >
+                    Delete
+                  </button>
+                </div>
+
                 <small className="text-muted block mt-2">Last Updated</small>
               </div>
             ))}
-            {/* Add button with transparent white background */}
+
             <div
               className="bg-white/50 p-6 rounded-2xl shadow-lg hover:shadow-none transition duration-300 flex flex-col items-center justify-center cursor-pointer"
-              onClick={() => console.log('Add new subject')}>
-                <Link to="/add-subject">
-                  <AiOutlinePlus className="text-black text-4xl" />
-                  <h3 className="mt-4 text-lg font-medium text-black-500">Add Subject</h3>
-                </Link>
+              onClick={() => console.log("Add new subject")}
+            >
+              <Link to="/add-subject">
+                <AiOutlinePlus className="text-black text-4xl" />
+                <h3 className="mt-4 text-lg font-medium text-black-500">
+                  Add Subject
+                </h3>
+              </Link>
             </div>
           </div>
-
           <div className="mt-8">
             <div className="flex justify-between items-center">
               <span className="cursor-pointer text-xl" id="prevDay">
@@ -180,7 +260,6 @@ const Dashboard = () => {
             </table>
           </div>
         </main>
-
         <div className="w-72">
           <div className="bg-white p-6 rounded-xl shadow-lg">
             <h2 className="text-xl font-semibold text-black">Announcements</h2>
@@ -193,7 +272,8 @@ const Dashboard = () => {
                 },
                 {
                   type: "Co-curricular",
-                  message: "Global internship opportunity by Student organization.",
+                  message:
+                    "Global internship opportunity by Student organization.",
                   time: "10 Minutes Ago",
                 },
                 {

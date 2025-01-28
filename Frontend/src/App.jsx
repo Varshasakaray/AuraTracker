@@ -116,6 +116,8 @@ function App() {
             </AuthRoute>
           }
         />
+        
+
         <Route
           path="/update-task/:id"
           element={
@@ -184,10 +186,24 @@ function App() {
               <>
                 <PrivateNavbar />
                 <AddSubject />
+
               </>
             </AuthRoute>
           }
         />
+        <Route
+          path="/add-subject/:id"
+          element={
+            <AuthRoute>
+              <>
+                <PrivateNavbar />
+                <AddSubject />
+
+              </>
+            </AuthRoute>
+          }
+        />
+        
         <Route
           path="/tasks"
           element={
