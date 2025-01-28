@@ -235,7 +235,6 @@ function App() {
             element={
               <ProtectedRoute user={loggedInMail}>
                 <PrivateNavbar />
-                
                 <Main classData={item} />
               </ProtectedRoute>
             }
@@ -250,7 +249,6 @@ function App() {
             element={
               <ProtectedRoute user={loggedInMail}>
                 <PrivateNavbar />
-                
                 <Main classData={item}/>
               </ProtectedRoute>
             }
