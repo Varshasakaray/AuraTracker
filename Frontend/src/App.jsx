@@ -25,7 +25,6 @@ import Main from "./components/Main/Main";
 import AddSubject from "./components/Attendance/AddSubject";
 import ExamList from "./components/Exam/ExamList";
 
-
 function App() {
   const token = getUserFromStorage();
   const user = useSelector((state) => state?.auth?.user);
@@ -212,6 +211,14 @@ function App() {
           </AuthRoute>
           }
         />
+        {/* <Route
+          path="/timetable"
+          element={
+          <AuthRoute>
+            <Timetable/>
+          </AuthRoute>
+          }
+        /> */}
 
         
         <Route
@@ -236,6 +243,8 @@ function App() {
             </AuthRoute>
           }
         />
+        
+
 
         {/* Dynamic Routes for Created Classes */}
         {createdClasses.map((item, index) => (

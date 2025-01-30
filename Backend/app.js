@@ -7,8 +7,7 @@ import taskRouter from './routes/taskRouter.js';
 import Announcement from './models/Announcement.js';
 import attendanceRouter from './routes/attendanceRouter.js';
 import examRouter from './routes/examRouter.js';
-
-
+import timetableRouter from './routes/timetableRoutes.js';
 const app = express();
 
 // const app= express();
@@ -20,7 +19,6 @@ mongoose.connect("mongodb://localhost:27017/aura-tracker")
   .then(() => console.log("Connected to MongoDB"))
   .catch((e) => console.log(e));
 
-
 // CORS config
 const corsOptions = {
   origin: ['http://localhost:5173'],
@@ -31,6 +29,7 @@ app.use("/",userRouter);
 app.use("/",taskRouter);
 app.use("/",attendanceRouter);
 app.use("/",examRouter);
+app.use('/',timetableRouter); 
 app.use(errorHandler);
 
 // API to fetch all files
