@@ -18,7 +18,6 @@ const attendanceSchema=new mongoose.Schema({
     totalClasses:{
         type:Number,
         required:true,
-        // enum:["income","expense"],
     },
     attendedClasses:{
         type:Number,

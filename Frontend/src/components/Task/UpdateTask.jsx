@@ -15,11 +15,10 @@ import { updateTaskAPI } from "../../services/task/taskService";
 
 const validationSchema = Yup.object({
   name: Yup.string()
-    .required("Task name is required")
-    .oneOf(["income", "expense"]),
+    .required("Task name is required"),
   type: Yup.string()
     .required("Task type is required")
-    .oneOf(["income", "expense"]),
+    .oneOf(["complete", "incomplete"]),
 });
 
 const UpdateTask = () => {
@@ -93,8 +92,8 @@ const UpdateTask = () => {
           className="w-full p-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
         >
           <option value="">Select transaction type</option>
-          <option value="income">Income</option>
-          <option value="expense">Expense</option>
+          <option value="complete">Complete</option>
+          <option value="incomplete">Incomplete</option>
         </select>
         {formik.touched.type && formik.errors.type && (
           <p className="text-red-500 text-xs">{formik.errors.type}</p>

@@ -5,17 +5,13 @@ import Task from "../models/Task.js";
 const taskController = {
   //!add
   create: asyncHandler(async (req, res) => {
-    const { name, type } = req.body;
-    if (!name || !type) {
+    const { name,type } = req.body;
+    if (!name) {
       throw new Error("Name and type are required for creating a Task");
     }
     //Convert the name to lowercase
     const normalizedName = name.toLowerCase();
     //! Check if the type is valid
-    const validTypes = ["income", "expense"];
-    if (!validTypes.includes(type.toLowerCase())) {
-      throw new Error("Invalid Task type" + type);
-    }
     //!Check if Task already exists on the user
     const TaskExists = await Task.findOne({
       name: normalizedName,
@@ -30,7 +26,6 @@ const taskController = {
     const newTask = await Task.create({
       name: normalizedName,
       user: req.user,
-      type,
     });
     res.status(201).json(newTask);
   }),
@@ -40,7 +35,6 @@ const taskController = {
     const tasks = await Task.find({ user: req.user });
     res.status(200).json(tasks);
   }),
-
   //!update
   update: asyncHandler(async (req, res) => {
     const { TaskId } = req.params;

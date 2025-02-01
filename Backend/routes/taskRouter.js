@@ -10,7 +10,6 @@ const taskRouter=express.Router();
 taskRouter.post('/api/v1/tasks/create',isAuthenticated, taskController.create);
 //lists
 taskRouter.get('/api/v1/tasks/lists',isAuthenticated, taskController.lists);
-
 //update
 taskRouter.put(
     "/api/v1/tasks/update/:TaskId",

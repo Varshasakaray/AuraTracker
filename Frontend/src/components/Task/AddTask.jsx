@@ -18,7 +18,7 @@ const validationSchema = Yup.object({
     
   type: Yup.string()
     .required("task type is required")
-    .oneOf(["income", "expense"]),
+    
 });
 
 const AddTask = () => {
@@ -87,8 +87,8 @@ const AddTask = () => {
           className="w-full p-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
         >
           <option value="">Select transaction type</option>
-          <option value="income">Income</option>
-          <option value="expense">Expense</option>
+          <option value="complete">complete</option>
+          <option value="incomplete">Incomplete</option>
         </select>
         {formik.touched.type && formik.errors.type && (
           <p className="text-red-500 text-xs">{formik.errors.type}</p>

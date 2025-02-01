@@ -14,7 +14,7 @@ const taskSchema=new mongoose.Schema({
     type:{
         type:String,
         required:true,
-        enum:["income","expense"],
+        default:"Not completed",
     }
 },{timestamps:true,});
 
