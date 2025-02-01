@@ -14,6 +14,7 @@ const Main = ({ classData }) => {
   const [inputValue, setInput] = useState("");
   const [image, setImage] = useState(null);
   const [imageOptions, setImageOptions] = useState([]);
+  const [editingAnnouncement,setEditingAnnouncement] = useState(null); // Stores announcement being edited
 
   // Fetch files from MongoDB
   useEffect(() => {
@@ -21,7 +22,7 @@ const Main = ({ classData }) => {
       try {
         const response = await fetch("http://localhost:8000/api/v1/files");
         const data = await response.json();
-        setImageOptions(data); // Set the list of available images
+        setImageOptions(data); 
       } catch (error) {
         console.error("Error fetching files:", error);
       }
@@ -32,30 +33,53 @@ const Main = ({ classData }) => {
 
   // Save announcement to Firestore
   const handleUpload = async () => {
-    if (!inputValue && !image) {
+    if (!inputValue.trim() && !image) {
       alert("Please enter some text or select an image!");
       return;
     }
 
     try {
-      // Save announcement to Firestore
-      await db.collection("announcements")
-        .doc("classes")
-        .collection(classData.id)
-        .add({
-          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-          imageUrl: image || null, // Save null if no image is selected
-          text: inputValue,
-          sender: loggedInMail,
-        });
+      if (editingAnnouncement) {
+        // Update existing announcement
+        await db
+          .collection("announcements")
+          .doc("classes")
+          .collection(classData.id)
+          .doc(editingAnnouncement.id)
+          .update({
+            text: inputValue.trim(),
+            imageUrl: image || null,
+          });
+      } else {
+        // Create a new announcement
+        await db
+          .collection("announcements")
+          .doc("classes")
+          .collection(classData.id)
+          .add({
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            text: inputValue.trim(),
+            imageUrl: image || null,
+            sender: loggedInUser?.displayName || loggedInMail,
+            senderPhotoURL: loggedInUser?.photoURL || "", 
+          });
+      }
 
       // Reset state
       setInput("");
-      setImage(null);
+      setImage("");
+      setEditingAnnouncement(null);
       setShowInput(false);
     } catch (error) {
       console.error("Error saving announcement:", error);
     }
+  };
+  // Function to edit an announcement
+  const handleEdit = (announcement) => {
+    setInput(announcement.text);
+    setImage(announcement.imageUrl || "");
+    setEditingAnnouncement(announcement);
+    setShowInput(true);
   };
 
   return (
@@ -127,7 +151,7 @@ const Main = ({ classData }) => {
                           color="primary"
                           variant="contained"
                         >
-                          Post
+                          {editingAnnouncement?.id ? "Update" : "Announce"}
                         </Button>
                       </div>
                     </div>
@@ -143,7 +167,7 @@ const Main = ({ classData }) => {
                 )}
               </div>
             </div>
-            <ClassRoomAnnouncement classData={classData}/>
+            <ClassRoomAnnouncement classData={classData} onEdit={handleEdit}/>
           </div>
         </div>
       </div>

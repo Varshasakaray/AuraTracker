@@ -3,7 +3,8 @@ const announcementSchema = new mongoose.Schema({
     text: String,
     sender: String,
     timestamp: { type: Date, default: Date.now },
-    filePath: String, // To store the file path
+    filePath: String, 
+    senderPhotoURL: String, 
   });
   
   

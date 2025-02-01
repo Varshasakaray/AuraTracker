@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios"; // To make HTTP requests
+import axios from "axios"; 
 import { Avatar, IconButton, Menu, MenuItem } from "@mui/material";
-import MoreVertIcon from "@mui/icons-material/MoreVert"; // For 3-dots icon
+import MoreVertIcon from "@mui/icons-material/MoreVert"; 
 import "./style.css";
 import db from "../lib/Firebase";
-import { useLocalContext } from "../../context/context";
 
-const ClassRoomAnnouncement = ({ classData }) => {
-  const { loggedInUser } = useLocalContext();
+
+const ClassRoomAnnouncement = ({ classData,onEdit }) => {
+  
   const [announcement, setAnnouncement] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null); // For menu
   const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
@@ -38,8 +38,9 @@ const ClassRoomAnnouncement = ({ classData }) => {
   };
 
   const handleEdit = () => {
-    // Logic to open an edit modal or navigate to an edit page
-    console.log("Edit announcement:", selectedAnnouncement);
+    if (selectedAnnouncement) {
+      onEdit(selectedAnnouncement); 
+    }
     handleMenuClose();
   };
 
@@ -71,7 +72,7 @@ const ClassRoomAnnouncement = ({ classData }) => {
         <div className="amt" key={item.id}>
           <div className="amt__Cnt">
             <div className="amt__top">
-              <Avatar src={loggedInUser?.photoURL} />
+              <Avatar src={item.senderPhotoURL} alt={item.sender} />
               <div>{item.sender}</div>
               <IconButton
                 aria-controls="announcement-menu"

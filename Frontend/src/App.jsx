@@ -13,7 +13,7 @@ import TasksList from "./components/Task/TasksList";
 import UpdateTask from "./components/Task/UpdateTask";
 import Dashboard from "./components/Users/Dashboard";
 import ExamDashboard from "./components/Users/Exam";
-import TimeTable from "./components/Users/TimeTable";
+
 import AssignmentHeader from "./components/Header/AssignmentHeader";
 import ClassRoomLogin from "./components/ClassRoomLogin/ClassRoomLogin";
 import { IsUserRedirect, ProtectedRoute } from "./routes/Routes";

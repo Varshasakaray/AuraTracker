@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import db from "../lib/Firebase";
 
 const Form = () => {
+  const {loggedInUser} = useLocalContext();
   const [className, setClassName] = useState("");
   const [section, setSection] = useState("");
   const [subject, setSubject] = useState("");
@@ -32,9 +33,12 @@ const Form = () => {
         subject: subject.trim(),
         room: room.trim(),
         id: id,
+        senderPhotoURL: loggedInUser?.photoURL || "", 
+        timestamp: new Date(), 
+        
       })
       .then(() => {
-        setCreateClassDialog(false); // Close the dialog after successful submission
+        setCreateClassDialog(false); 
       })
       .catch((error) => {
         console.error("Error creating class: ", error);
