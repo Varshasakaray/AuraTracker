@@ -8,13 +8,12 @@ import db from "../lib/Firebase";
 import firebase from "firebase/compat/app";
 
 const Main = ({ classData }) => {
-  const { loggedInMail,loggedInUser } = useLocalContext();
+  const { loggedInMail, loggedInUser } = useLocalContext();
 
   const [showInput, setShowInput] = useState(false);
   const [inputValue, setInput] = useState("");
-  const [image, setImage] = useState(null);
-  const [imageOptions, setImageOptions] = useState([]);
-  const [editingAnnouncement,setEditingAnnouncement] = useState(null); // Stores announcement being edited
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [editingAnnouncement, setEditingAnnouncement] = useState(null); // Stores announcement being edited
 
   // Fetch files from MongoDB
   useEffect(() => {
@@ -22,7 +21,7 @@ const Main = ({ classData }) => {
       try {
         const response = await fetch("http://localhost:8000/api/v1/files");
         const data = await response.json();
-        setImageOptions(data); 
+        setSelectedFiles(data);
       } catch (error) {
         console.error("Error fetching files:", error);
       }
@@ -31,14 +30,43 @@ const Main = ({ classData }) => {
     fetchFiles();
   }, []);
 
+  // Handle file selection
+  const handleFileChange = (event) => {
+    const files = Array.from(event.target.files);
+    setSelectedFiles(files);
+  };
+
   // Save announcement to Firestore
   const handleUpload = async () => {
-    if (!inputValue.trim() && !image) {
-      alert("Please enter some text or select an image!");
+    if (!inputValue.trim() && selectedFiles.length === 0) {
+      alert("Please enter some text or select a file!");
       return;
     }
 
     try {
+      let fileUrls = [];
+      if (selectedFiles.length > 0) {
+        // Upload selected files to the server
+        const formData = new FormData();
+        selectedFiles.forEach((file) => {
+          formData.append("files", file);
+        });
+        const response = await axios.post(
+          "http://localhost:8000/api/v1/upload",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        console.log("Upload Response:", response.data);
+        fileUrls = response.data.fileUrls;
+      }
+      if (fileUrls.length === 0 && selectedFiles.length > 0) {
+        alert("File upload failed! Please check the server.");
+        return;
+      }
       if (editingAnnouncement) {
         // Update existing announcement
         await db
@@ -48,7 +76,7 @@ const Main = ({ classData }) => {
           .doc(editingAnnouncement.id)
           .update({
             text: inputValue.trim(),
-            imageUrl: image || null,
+            fileUrls: fileUrls,
           });
       } else {
         // Create a new announcement
@@ -59,15 +87,15 @@ const Main = ({ classData }) => {
           .add({
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             text: inputValue.trim(),
-            imageUrl: image || null,
+            fileUrls: fileUrls,
             sender: loggedInUser?.displayName || loggedInMail,
-            senderPhotoURL: loggedInUser?.photoURL || "", 
+            senderPhotoURL: loggedInUser?.photoURL || "",
           });
       }
 
       // Reset state
       setInput("");
-      setImage("");
+      setSelectedFiles([]);
       setEditingAnnouncement(null);
       setShowInput(false);
     } catch (error) {
@@ -77,7 +105,7 @@ const Main = ({ classData }) => {
   // Function to edit an announcement
   const handleEdit = (announcement) => {
     setInput(announcement.text);
-    setImage(announcement.imageUrl || "");
+    setSelectedFiles(announcement.fileUrls || []);
     setEditingAnnouncement(announcement);
     setShowInput(true);
   };
@@ -123,22 +151,21 @@ const Main = ({ classData }) => {
                       onChange={(e) => setInput(e.target.value)}
                     />
                     <div className="main__buttons">
-                      {imageOptions.length > 0 ? (
-                        <select
-                          onChange={(e) => setImage(e.target.value)}
-                          defaultValue=""
-                        >
-                          <option value="" disabled>
-                            Select an Image (optional)
-                          </option>
-                          {imageOptions.map((file) => (
-                            <option key={file._id} value={file.imageUrl}>
-                              {file.description || file.imageUrl}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        <p>No images available</p>
+                      <input
+                        type="file"
+                        multiple
+                        onChange={handleFileChange}
+                        accept="*/*" // Allow all file types
+                      />
+                      {selectedFiles.length > 0 && (
+                        <div>
+                          <p>Selected Files:</p>
+                          <ul>
+                            {selectedFiles.map((file, index) => (
+                              <li key={index}>{file.name}</li>
+                            ))}
+                          </ul>
+                        </div>
                       )}
 
                       <div>
@@ -161,13 +188,13 @@ const Main = ({ classData }) => {
                     className="main__wrapper100"
                     onClick={() => setShowInput(true)}
                   >
-                    <Avatar/>
+                    <Avatar />
                     <div>Announce Something to class</div>
                   </div>
                 )}
               </div>
             </div>
-            <ClassRoomAnnouncement classData={classData} onEdit={handleEdit}/>
+            <ClassRoomAnnouncement classData={classData} onEdit={handleEdit} />
           </div>
         </div>
       </div>

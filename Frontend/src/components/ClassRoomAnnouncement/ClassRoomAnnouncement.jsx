@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios"; 
+import axios from "axios";
 import { Avatar, IconButton, Menu, MenuItem } from "@mui/material";
-import MoreVertIcon from "@mui/icons-material/MoreVert"; 
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import "./style.css";
 import db from "../lib/Firebase";
 
-
-const ClassRoomAnnouncement = ({ classData,onEdit }) => {
-  
+const ClassRoomAnnouncement = ({ classData, onEdit }) => {
   const [announcement, setAnnouncement] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null); // For menu
   const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
@@ -39,7 +37,7 @@ const ClassRoomAnnouncement = ({ classData,onEdit }) => {
 
   const handleEdit = () => {
     if (selectedAnnouncement) {
-      onEdit(selectedAnnouncement); 
+      onEdit(selectedAnnouncement);
     }
     handleMenuClose();
   };
@@ -83,9 +81,53 @@ const ClassRoomAnnouncement = ({ classData,onEdit }) => {
               </IconButton>
             </div>
             <p className="amt__txt">{item.text}</p>
-            {item.imageUrl && (
-              <img className="amt__img" src={item.imageUrl} alt="Announcement" />
+
+            {/* Check if fileUrls is not empty and render each file */}
+            {item.fileUrls && item.fileUrls.length > 0 && (
+              <div className="amt__files">
+                {item.fileUrls.map((fileUrl, index) => {
+                  const fileExtension = fileUrl.split(".").pop().toLowerCase();
+                  console.log(fileUrl);
+                  console.log(fileExtension); // For debugging
+
+                  // Construct the correct file path with your backend URL
+                  const filePath = `http://localhost:8000/${fileUrl}`; // Adjust the URL to your backend's actual URL
+
+                  if (
+                    fileExtension === "jpg" ||
+                    fileExtension === "jpeg" ||
+                    fileExtension === "png"
+                  ) {
+                    // If the file is an image
+                    return (
+                      <img
+                        key={index}
+                        className="amt__img"
+                        src={filePath}
+                        alt={`Announcement file ${index}`}
+                      />
+                    );
+                  } else if (fileExtension === "pdf") {
+                    // If the file is a PDF
+                    return (
+                      <div key={index} className="amt__pdf">
+                        <a
+                          href={filePath}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          PDF: {filePath}
+                        </a>
+                      </div>
+                    );
+                  } else {
+                    // Handle other file types if needed
+                    return null;
+                  }
+                })}
+              </div>
             )}
+
             <div className="amt__time">
               {new Date(item.timestamp?.toDate()).toLocaleString()}
             </div>
