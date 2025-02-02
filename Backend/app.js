@@ -9,12 +9,16 @@ import attendanceRouter from './routes/attendanceRouter.js';
 import examRouter from './routes/examRouter.js';
 import timetableRouter from './routes/timetableRoutes.js';
 import multer from "multer";
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// ES module workaround for __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
-// const app= express();
-
 app.use(express.json());
-// Serve static files from the "Backend" folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Connect to MongoDB
@@ -33,7 +37,7 @@ app.use(cors(corsOptions));
 // Multer config
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, '/uploads');
+    cb(null, path.join(__dirname, 'uploads'));
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + '-' + file.originalname);
@@ -53,21 +57,26 @@ const storage = multer.diskStorage({
  })
 
  // **POST /api/v1/upload** - Upload a file
-//  app.post("/api/v1/upload", upload.array("files", 10), async (req, res) => {
-//   try {
-//     if (!req.files) {
-//       return res.status(400).send("No files uploaded.");
-//     }
-//     const fileUrls = req.files.map((file) => `uploads/${file.filename}`);
-//     res.json({ message: "Files uploaded successfully", fileUrls });
-//   } catch (error) {
-//     console.error("Error uploading files:", error);
-//     res.status(500).json({ message: "An error occurred while uploading files" });
-//   }
-// });
-app.post('/api/v1/upload', (req, res) => {
-  res.send({ message: 'Upload successful!' });
+ app.post("/api/v1/upload", upload.array("files", 10), async (req, res) => {
+  try {
+    console.log("Uploaded files:", req.files); // Debug: log the files received
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "No files uploaded." });
+    }
+    // Create an array of file URLs (adjust the URL if needed)
+    const fileUrls = req.files.map((file) => `uploads/${file.filename}`);
+    return res.json({ message: "Upload successful!", fileUrls });
+  } catch (error) {
+    console.error("Error uploading files:", error);
+    res.status(500).json({ message: "An error occurred while uploading files" });
+  }
 });
+
+
+
+// app.post('/api/v1/upload', (req, res) => {
+//   res.send({ message: 'Upload successful!' });
+// });
 
 app.use("/",userRouter);
 app.use("/",taskRouter);
