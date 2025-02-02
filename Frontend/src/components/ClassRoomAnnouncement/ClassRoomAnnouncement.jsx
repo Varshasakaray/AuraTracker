@@ -4,6 +4,7 @@ import { Avatar, IconButton, Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import "./style.css";
 import db from "../lib/Firebase";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 
 const ClassRoomAnnouncement = ({ classData, onEdit }) => {
   const [announcement, setAnnouncement] = useState([]);
@@ -93,12 +94,7 @@ const ClassRoomAnnouncement = ({ classData, onEdit }) => {
                   // Construct the correct file path with your backend URL
                   const filePath = `http://localhost:8000/${fileUrl}`; // Adjust the URL to your backend's actual URL
 
-                  if (
-                    fileExtension === "jpg" ||
-                    fileExtension === "jpeg" ||
-                    fileExtension === "png"
-                  ) {
-                    // If the file is an image
+                  if (["jpg", "jpeg", "png"].includes(fileExtension)) {
                     return (
                       <img
                         key={index}
@@ -108,7 +104,6 @@ const ClassRoomAnnouncement = ({ classData, onEdit }) => {
                       />
                     );
                   } else if (fileExtension === "pdf") {
-                    // If the file is a PDF
                     return (
                       <div key={index} className="amt__pdf">
                         <a
@@ -116,12 +111,13 @@ const ClassRoomAnnouncement = ({ classData, onEdit }) => {
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          PDF: {filePath}
+                          <PictureAsPdfIcon
+                            style={{ color: "red", fontSize: "5rem" }}
+                          />
                         </a>
                       </div>
                     );
                   } else {
-                    // Handle other file types if needed
                     return null;
                   }
                 })}
