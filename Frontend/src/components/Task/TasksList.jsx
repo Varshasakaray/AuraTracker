@@ -1,11 +1,12 @@
 import React from "react";
-import { FaTrash, FaEdit } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Link, useNavigate } from "react-router-dom";
-import { deleteTaskAPI, listTasksAPI } from "../../services/task/taskService";
+import { useNavigate } from "react-router-dom";
+import { deleteTaskAPI, listTasksAPI, updateTaskAPI } from "../../services/task/taskService";
 import AlertMessage from "../Alert/AlertMessage";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css"; // For styling the progress bar
+import { Switch } from "@headlessui/react";
 
 const TasksList = () => {
   const { data, isError, isLoading, error, refetch } = useQuery({
@@ -50,22 +51,43 @@ const TasksList = () => {
   const navigate = useNavigate();
 
   // Mutation for delete
-  const { mutateAsync, isPending, error: taskErr, isSuccess } = useMutation({
-    mutationFn: deleteTaskAPI,
-    mutationKey: ["delete-task"],
-  });
+  const { mutateAsync: deleteTask } = useMutation({mutationFn:deleteTaskAPI});
+  const { mutateAsync: updateTask } = useMutation({ mutationFn: updateTaskAPI });
 
   // Delete handler
   const handleDelete = async (id) => {
     try {
-      // Await the delete operation
-      await mutateAsync(id);
-      refetch(); // Refetch tasks after successful delete
+      await deleteTask(id);
+      refetch();
     } catch (e) {
       console.log("Error deleting task:", e);
     }
   };
 
+  // Toggle task completion
+  const handleToggleComplete = async (task) => {
+    try {
+      const newType = task.type === "complete" ? "complete" : "complete";
+      const { updatedTask, updatedUser } = await updateTask({
+        name: task.name,
+        type: newType,
+        id: task._id,
+      });
+  
+      // Update localStorage with the new user data
+      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+      if (userInfo) {
+        userInfo.auraPoints = updatedUser.auraPoints;
+        localStorage.setItem("userInfo", JSON.stringify(userInfo));
+      }
+  
+      alert(`Task marked as complete! Your new aura points: ${updatedUser.auraPoints}`);
+      refetch(); // Refresh task list
+    } catch (e) {
+      console.log("Error updating task:", e);
+    }
+  };
+  
   // Sort tasks: incomplete first, then completed tasks
   const sortedTasks = Array.isArray(data)
     ? [
@@ -171,14 +193,19 @@ const TasksList = () => {
               </span>
             </div>
             <div className="flex space-x-4">
-              {/* Show Edit button only for incomplete tasks */}
-              {task.type !== "complete" && (
-                <Link to={`/update-task/${task._id}`}>
-                  <button className="text-blue-500 hover:text-blue-700">
-                    <FaEdit />
-                  </button>
-                </Link>
-              )}
+              {/* Show Toggle button for all tasks */}
+              <Switch
+                checked={task.type === "complete"}
+                onChange={() => task.type !== "complete" && handleToggleComplete(task)}
+                className={`${task.type === "complete" ? "bg-green-500" : "bg-gray-200"} relative inline-flex h-6 w-11 items-center rounded-full`}
+              >
+                <span className="sr-only">Toggle Task Completion</span>
+                <span
+                  className={`inline-block h-4 w-4 transform ${
+                    task.type === "complete" ? "translate-x-6 bg-green-600" : "translate-x-1 bg-blue-500"
+                  } rounded-full transition-transform`}
+                />
+              </Switch>
               <button
                 onClick={() => handleDelete(task?._id)}
                 className="text-red-500 hover:text-red-700"

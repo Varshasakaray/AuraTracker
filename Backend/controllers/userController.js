@@ -33,7 +33,8 @@ const usersController = {
             semester,
             DOB,
             course,
-            regnum
+            regnum,
+            auraPoints:0
         });
 
         console.log(req.body);
@@ -45,7 +46,8 @@ const usersController = {
             semester: userCreated.semester,
             DOB: userCreated.DOB,
             course: userCreated.course,
-            regnum: userCreated.regnum
+            regnum: userCreated.regnum,
+            auraPoints: userCreated.auraPoints
         });
     }),
 
@@ -82,6 +84,7 @@ const usersController = {
             DOB: user.DOB,
             course: user.course,
             regnum: user.regnum,
+            auraPoints: user.auraPoints,
         });
     }),
 
@@ -102,6 +105,7 @@ const usersController = {
             DOB: user.DOB,
             course: user.course,
             regnum: user.regnum,
+            auraPoints:user.auraPoints,
         });
     }),
 
@@ -129,12 +133,12 @@ const usersController = {
 
     // Update User Profile
     updateUserProfile: asyncHandler(async (req, res) => {
-        const { email, username, mobileNo, semester, DOB, course, regnum } = req.body;
+        const { email, username, mobileNo, semester, DOB, course, regnum ,auraPoints} = req.body;
 
         // Find and update the user
         const updatedUser = await User.findByIdAndUpdate(
             req.user,
-            { email, username, mobileNo, semester, DOB, course, regnum },
+            { email, username, mobileNo, semester, DOB, course, regnum,auraPoints },
             { new: true }
         );
 
@@ -148,7 +152,8 @@ const usersController = {
                 semester: updatedUser.semester,
                 DOB: updatedUser.DOB,
                 course: updatedUser.course,
-                regnum: updatedUser.regnum
+                regnum: updatedUser.regnum,
+                auraPoints: updatedUser.auraPoints
             }
         });
     })

@@ -5,7 +5,7 @@ import axios from 'axios';
 const token = getUserFromStorage();
 
 // Login
-export const loginAPI = async ({ email, password,name, mobileNo, semester, DOB, course, regnum }) => {
+export const loginAPI = async ({ email, password,name, mobileNo, semester, DOB, course, regnum,auraPoints }) => {
     const response = await axios.post(`${BASE_URL}/users/login`, {
         email,
         password,
@@ -15,13 +15,14 @@ export const loginAPI = async ({ email, password,name, mobileNo, semester, DOB, 
         DOB,
         course,
         regnum,
+        auraPoints,
     });
     // Return a promise
     return response.data;
 }
 
 // Register
-export const registerAPI = async ({ email, password, username, mobileNo, semester, DOB, course, regnum }) => {
+export const registerAPI = async ({ email, password, username, mobileNo, semester, DOB, course, regnum,auraPoints }) => {
     const response = await axios.post(`${BASE_URL}/users/register`, {
         email,
         password,
@@ -31,6 +32,7 @@ export const registerAPI = async ({ email, password, username, mobileNo, semeste
         DOB,
         course,
         regnum,
+        auraPoints,
     });
     // Return a promise
     return response.data;
@@ -50,7 +52,7 @@ export const changePasswordAPI = async (newPassword) => {
 }
 
 // Update Profile
-export const updateProfileAPI = async ({ email, name, mobileNo, semester, DOB, course, regnum }) => {
+export const updateProfileAPI = async ({ email, name, mobileNo, semester, DOB, course, regnum,auraPoints }) => {
     const response = await axios.put(`${BASE_URL}/users/update-profile`, {
         email,
         name,
@@ -59,6 +61,7 @@ export const updateProfileAPI = async ({ email, name, mobileNo, semester, DOB, c
         DOB,
         course,
         regnum,
+        auraPoints,
     }, {
         headers: {
             Authorization: `Bearer ${token}`,

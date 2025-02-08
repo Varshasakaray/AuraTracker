@@ -24,6 +24,7 @@ import JoinedClasses from "./components/JoindedClasses/JoinedClasses";
 import Main from "./components/Main/Main";
 import AddSubject from "./components/Attendance/AddSubject";
 import ExamList from "./components/Exam/ExamList";
+import StorePage from "./components/Store/StorePage";
 
 function App() {
   const token = getUserFromStorage();
@@ -116,7 +117,17 @@ function App() {
             </AuthRoute>
           }
         />
-        
+        <Route
+          path="/store"
+          element={
+            <AuthRoute>
+              <>
+                <PrivateNavbar />
+                <StorePage />
+              </>
+            </AuthRoute>
+          }
+        />
 
         <Route
           path="/update-task/:id"

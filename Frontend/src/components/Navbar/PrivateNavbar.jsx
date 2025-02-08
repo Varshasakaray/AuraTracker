@@ -7,7 +7,7 @@ import { SiAuthy } from "react-icons/si";
 import { useDispatch } from "react-redux";
 import { logoutAction } from "../../redux/slice/authSlice";
 import { HiSun, HiMoon } from "react-icons/hi";
-
+import { getUserFromStorage } from "../../utils/getUserFromStorage";
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
@@ -15,7 +15,9 @@ function classNames(...classes) {
 export default function PrivateNavbar() {
   const dispatch = useDispatch();
   const [darkMode, setDarkMode] = useState(false);
-
+  const user = JSON.parse(localStorage.getItem("userInfo") || null);
+  const [auraPoints, setAuraPoints] = useState(user?.auraPoints || 0); // Initialize state
+  
   const toggleTheme = () => {
     setDarkMode(!darkMode);
     localStorage.setItem("theme", darkMode ? "light" : "dark");
@@ -38,6 +40,37 @@ export default function PrivateNavbar() {
       document.body.style.color = "#1a202c";
     }
   }, [darkMode]);
+  useEffect(() => {
+    const fetchAuraPoints = async () => {
+      const token = getUserFromStorage();
+      try {
+        const response = await axios.get(`${BASE_URL}/users/profile`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setAuraPoints(response.data.auraPoints || 0);
+      } catch (error) {
+        console.error("Error fetching Aura Points:", error);
+      }
+    };
+    fetchAuraPoints();
+  }, []);
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const userData = JSON.parse(localStorage.getItem("userInfo"));
+      setAuraPoints(userData?.auraPoints || 0);
+    };
+  
+    window.addEventListener("storage", handleStorageChange);
+  
+    // Initial load
+    handleStorageChange();
+  
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
+  
 
   return (
     <div>
@@ -114,10 +147,46 @@ export default function PrivateNavbar() {
                     >
                       Assignment
                     </Link>
+                    <Link
+                      to="/store"
+                      className={darkMode
+                        ? "inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-300 hover:border-gray-700 hover:text-gray-400"
+                        : "inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"}
+                    >
+                      Store
+                    </Link>
                   </div>
                 </div>
                 <div className="flex items-center">
+                <Fragment>
+  <style>{`
+    @keyframes spin {
+      0% { transform: rotateY(0deg); }
+      100% { transform: rotateY(360deg); }
+    }
+    .coin {
+      height: 24px;
+      width: 24px;
+      background: radial-gradient(circle, gold, orange);
+      border-radius: 50%;
+      display: inline-block;
+      animation: spin 2s linear infinite;
+    }
+  `}</style>
+  <div className="flex items-center ml-6 space-x-2">
+    <div className="coin"></div>
+    <span
+      className={darkMode ? "text-sm font-medium text-gray-300" : "text-sm font-medium text-gray-900"}
+    >
+      Aura Points: {user?.auraPoints || 0}
+    </span>
+  </div>
+</Fragment>
+
+
                   <div className="flex-shrink-0">
+                    {/* Display Aura Points */}
+                  
                     <button
                       onClick={logoutHandler}
                       type="button"

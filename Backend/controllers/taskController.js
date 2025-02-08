@@ -1,5 +1,6 @@
 import asyncHandler from "express-async-handler";
 import Task from "../models/Task.js";
+import User from "../models/User.js";
 
 
 const taskController = {
@@ -37,30 +38,41 @@ const taskController = {
   }),
   //!update
   update: asyncHandler(async (req, res) => {
-    const { TaskId } = req.params;
-    const { type, name } = req.body;
-    const normalizedName = name.toLowerCase();
-    const taskToUpdate = await Task.findById(TaskId);
-    if (!taskToUpdate && taskToUpdate.user.toString() !== req.user.toString()) {
-      throw new Error("Task not found or user not authorized");
+    try {
+      console.log("Request params:", req.params);
+      console.log("Request body:", req.body);
+  
+      const { TaskId } = req.params;
+      const { type, name } = req.body;
+      const normalizedName = name?.toLowerCase();
+      const taskToUpdate = await Task.findById(TaskId);
+  
+      if (!taskToUpdate || taskToUpdate.user.toString() !== req.user.toString()) {
+        return res.status(404).json({ message: "Task not found or user not authorized" });
+      }
+  
+      taskToUpdate.name = normalizedName || taskToUpdate.name;
+      taskToUpdate.type = type || taskToUpdate.type;
+  
+      const updatedTask = await taskToUpdate.save();
+  
+      if (type === "complete") {
+        console.log("Adding aura points to user:", req.user);
+        const updatedUser = await User.findByIdAndUpdate(
+          req.user,
+          { $inc: { auraPoints: 10 } },
+          { new: true } // Ensure we get the updated user document
+        );
+        res.json({ updatedTask, updatedUser }); // Return both task and user
+      } else {
+        res.json(updatedTask);
+      }
+    } catch (error) {
+      console.error("Error updating task:", error);
+      res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
-    const oldName = taskToUpdate.name;
-    //! Update Task properties
-    taskToUpdate.name = normalizedName || taskToUpdate.name;
-    taskToUpdate.type = type || taskToUpdate.type;
-    const updatedTask = await taskToUpdate.save();
-    // //Update affected transaction
-    // if (oldName !== updatedTask.name) {
-    //   await Transaction.updateMany(
-    //     {
-    //       user: req.user,
-    //       Task: oldName,
-    //     },
-    //     { $set: { Task: updatedTask.name } }
-    //   );
-    // }
-    res.json(updatedTask);
   }),
+  
   //! delete
   delete: asyncHandler(async (req, res) => {
     const task = await Task.findById(req.params.id);

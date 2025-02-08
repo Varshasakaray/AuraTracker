@@ -55,7 +55,9 @@ const RegistrationForm = () => {
       DOB: "",
       course: "",
       regnum: "",
+      auraPoints:0,
       agreeToTerms: false,
+
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
