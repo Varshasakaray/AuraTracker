@@ -13,5 +13,6 @@ userRouter.put('/api/v1/users/change-password',isAuthenticated, usersController.
 
 //update profile
 userRouter.put('/api/v1/users/update-profile',isAuthenticated, usersController.updateUserProfile);
+userRouter.post('/api/v1/users/daily-check',isAuthenticated, usersController.dailyCheckIn);
 
 export default userRouter;

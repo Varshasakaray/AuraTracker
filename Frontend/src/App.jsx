@@ -13,7 +13,6 @@ import TasksList from "./components/Task/TasksList";
 import UpdateTask from "./components/Task/UpdateTask";
 import Dashboard from "./components/Users/Dashboard";
 import ExamDashboard from "./components/Users/Exam";
-
 import AssignmentHeader from "./components/Header/AssignmentHeader";
 import ClassRoomLogin from "./components/ClassRoomLogin/ClassRoomLogin";
 import { IsUserRedirect, ProtectedRoute } from "./routes/Routes";
@@ -25,6 +24,8 @@ import Main from "./components/Main/Main";
 import AddSubject from "./components/Attendance/AddSubject";
 import ExamList from "./components/Exam/ExamList";
 import StorePage from "./components/Store/StorePage";
+import { BASE_URL } from "./utils/url";
+import axios from "axios";
 
 function App() {
   const token = getUserFromStorage();
@@ -62,7 +63,42 @@ function App() {
     }
   }, [loggedInMail]);
   console.log(joinedClasses);
-
+  
+  useEffect(() => {
+    const checkInUser = async () => {
+      if (!token) return;
+  
+      try {
+        // Fetch current aura points before check-in
+        const profileResponse = await axios.get(`${BASE_URL}/users/profile`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+  
+        const oldAuraPoints = profileResponse.data.auraPoints;
+  
+        // Perform daily check-in
+        const checkInResponse = await axios.post(
+          `${BASE_URL}/users/daily-check`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+  
+        const newAuraPoints = checkInResponse.data.auraPoints;
+  
+        // Show alert only if points have increased
+        if (newAuraPoints > oldAuraPoints) {
+          alert(`🎉 Daily Check-in Complete!! 🪙 +1 point`);
+        }
+      } catch (error) {
+        console.error("Daily check-in failed:", error.response?.data?.message || "Server error");
+      }
+    };
+  
+    checkInUser();
+  }, [token]);
+  
+  
+  
   return (
     <BrowserRouter>
       <Routes>

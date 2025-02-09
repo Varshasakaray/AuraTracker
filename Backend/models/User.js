@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
   course: { type: String, required: true },
   regnum: { type: String, required: true, unique: true },
   auraPoints:{ type:Number, default:0},
+  lastCheckIn:{type:Date,default:null},
 });
 
 export default mongoose.model('User', userSchema);

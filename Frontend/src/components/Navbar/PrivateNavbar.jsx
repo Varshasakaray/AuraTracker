@@ -8,6 +8,8 @@ import { useDispatch } from "react-redux";
 import { logoutAction } from "../../redux/slice/authSlice";
 import { HiSun, HiMoon } from "react-icons/hi";
 import { getUserFromStorage } from "../../utils/getUserFromStorage";
+import axios from "axios";
+import { BASE_URL } from "../../utils/url";
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
@@ -48,12 +50,20 @@ export default function PrivateNavbar() {
           headers: { Authorization: `Bearer ${token}` },
         });
         setAuraPoints(response.data.auraPoints || 0);
+        // Update local storage for consistency
+        const userData = JSON.parse(localStorage.getItem("userInfo"));
+        if (userData) {
+          userData.auraPoints = response.data.auraPoints;
+          localStorage.setItem("userInfo", JSON.stringify(userData));
+        }
       } catch (error) {
         console.error("Error fetching Aura Points:", error);
       }
     };
+  
     fetchAuraPoints();
   }, []);
+  
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -176,10 +186,11 @@ export default function PrivateNavbar() {
   <div className="flex items-center ml-6 space-x-2">
     <div className="coin"></div>
     <span
-      className={darkMode ? "text-sm font-medium text-gray-300" : "text-sm font-medium text-gray-900"}
-    >
-      Aura Points: {user?.auraPoints || 0}
-    </span>
+  className={darkMode ? "text-sm font-medium text-gray-300" : "text-sm font-medium text-gray-900"}
+>
+  Aura Points: {auraPoints}
+</span>
+
   </div>
 </Fragment>
 
