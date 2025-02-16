@@ -8,6 +8,9 @@ import { useDispatch } from "react-redux";
 import { logoutAction } from "../../redux/slice/authSlice";
 import { HiSun, HiMoon } from "react-icons/hi";
 import { getUserFromStorage } from "../../utils/getUserFromStorage";
+import { BASE_URL } from "../../utils/url";
+import axios from 'axios';
+
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
