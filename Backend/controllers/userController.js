@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
+
 const usersController = {
     // Register
     register: asyncHandler(async (req, res) => {
@@ -156,7 +157,43 @@ const usersController = {
                 auraPoints: updatedUser.auraPoints
             }
         });
-    })
+    }),
+    // Daily Check-in Controller
+    dailyCheckIn: asyncHandler(async (req, res) => {
+        console.log("Daily Check-in Route Hit");
+        console.log("Request User from Token:", req.user);
+      
+        if (!req.user) {
+          return res.status(401).json({ message: "User not authenticated" });
+        }
+      
+        try {
+          const user = await User.findById(req.user);
+          if (!user) {
+            console.log("User not found in the database");
+            return res.status(404).json({ message: "User not found" });
+          }
+      
+          console.log("Found User:", user);
+          const today = new Date().setHours(0, 0, 0, 0);
+          const lastCheckDate = user.lastCheckIn ? user.lastCheckIn.setHours(0, 0, 0, 0) : null;
+      
+          if (lastCheckDate === today) {
+            return res.status(200).json({ message: "Daily check-in already completed", auraPoints: user.auraPoints });
+          }
+      
+          user.auraPoints += 1;
+          user.lastCheckIn = new Date();
+          await user.save();
+      
+          res.status(200).json({ message: "Daily check-in successful!", auraPoints: user.auraPoints });
+        } catch (error) {
+          console.error("Error during daily check-in:", error.message);
+          res.status(500).json({ message: "Server error", error: error.message });
+        }
+      })
+            
+      
 }
 
 export default usersController;

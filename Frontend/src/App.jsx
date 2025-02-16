@@ -13,7 +13,6 @@ import TasksList from "./components/Task/TasksList";
 import UpdateTask from "./components/Task/UpdateTask";
 import Dashboard from "./components/Users/Dashboard";
 import ExamDashboard from "./components/Users/Exam";
-
 import AssignmentHeader from "./components/Header/AssignmentHeader";
 import ClassRoomLogin from "./components/ClassRoomLogin/ClassRoomLogin";
 import { IsUserRedirect, ProtectedRoute } from "./routes/Routes";
@@ -25,6 +24,8 @@ import Main from "./components/Main/Main";
 import AddSubject from "./components/Attendance/AddSubject";
 import ExamList from "./components/Exam/ExamList";
 import StorePage from "./components/Store/StorePage";
+import { BASE_URL } from "./utils/url";
+import axios from "axios";
 import SubmittedAssignments from "./components/SubmittedAssignments/SubmittedAssignments";
 import DisplayAssignments from "./components/DueDate/DisplayAssignments";
 
@@ -65,28 +66,6 @@ function App() {
     }
   }, [loggedInMail]);
   console.log(joinedClasses);
-
-  // // Fetch Announcements
-  // useEffect(() => {
-  //   if (loggedInMail) {
-  //     db.collection("announcements")
-  //       .doc("classes") // If "classes" is a document inside "announcements"
-  //       .collection("50760f2a-9af3-4253-90eb-511b824c497b") // Subcollection
-  //       .doc("FxQicJTSvHFsawJUiurL") // Document inside the subcollection
-  //       .get()
-  //       .then((doc) => {
-  //         if (doc.exists) {
-  //           console.log("Fetched Announcement:", doc.data());
-  //           setAnnouncements([doc.data()]); // Store it as an array
-  //         } else {
-  //           console.log("No such announcement found!");
-  //         }
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error fetching announcement:", error);
-  //       });
-  //   }
-  // }, [loggedInMail]);
 
   return (
     <BrowserRouter>
