@@ -45,9 +45,31 @@
     color: grey;
     margin-top: 5px;
   }
-  
-  
-  
 
-
+  /* View Submissions Button */
+  /* Button Styling - Soft Earthy Look */
+.view-submissions-btn {
   
+  
+  background: radial-gradient(circle, rgba(238,174,202,1) 0%, rgba(148,187,233,1) 100%);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.view-submissions-btn:hover {
+  background-color: #8c5a21; /* Richer brown */
+  transform: translateY(-1px);
+}
+
+.view-submissions-btn:active {
+  transform: scale(0.96);
+}

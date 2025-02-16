@@ -6,6 +6,7 @@ import axios from "axios";
 import ClassRoomAnnouncement from "../ClassRoomAnnouncement/ClassRoomAnnouncement";
 import db from "../lib/Firebase";
 import firebase from "firebase/compat/app";
+import { Link } from "react-router-dom";
 
 const Main = ({ classData }) => {
   const { loggedInMail, loggedInUser } = useLocalContext();
@@ -13,22 +14,32 @@ const Main = ({ classData }) => {
   const [showInput, setShowInput] = useState(false);
   const [inputValue, setInput] = useState("");
   const [selectedFiles, setSelectedFiles] = useState([]);
-  const [editingAnnouncement, setEditingAnnouncement] = useState(null); // Stores announcement being edited
+  const [editingAnnouncement, setEditingAnnouncement] = useState(null);
+  const [dueDate, setDueDate] = useState(""); // Stores the selected due date
+  const [announcements, setAnnouncements] = useState([]); // Stores fetched announcements
 
-  // Fetch files from MongoDB
+  // Fetch announcements from Firestore
   useEffect(() => {
-    const fetchFiles = async () => {
+    const fetchAnnouncements = async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/v1/files");
-        const data = await response.json();
-        setSelectedFiles(data);
+        const snapshot = await db
+          .collection("announcements")
+          .doc("classes")
+          .collection(classData.id)
+          .orderBy("timestamp", "desc")
+          .get();
+        const fetchedAnnouncements = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setAnnouncements(fetchedAnnouncements);
       } catch (error) {
-        console.error("Error fetching files:", error);
+        console.error("Error fetching announcements:", error);
       }
     };
 
-    fetchFiles();
-  }, []);
+    fetchAnnouncements();
+  }, [classData.id]);
 
   // Handle file selection
   const handleFileChange = (event) => {
@@ -60,13 +71,9 @@ const Main = ({ classData }) => {
             },
           }
         );
-        console.log("Upload Response:", response.data);
         fileUrls = response.data.fileUrls;
       }
-      if (fileUrls.length === 0 && selectedFiles.length > 0) {
-        alert("File upload failed! Please check the server.");
-        return;
-      }
+
       if (editingAnnouncement) {
         // Update existing announcement
         await db
@@ -77,6 +84,7 @@ const Main = ({ classData }) => {
           .update({
             text: inputValue.trim(),
             fileUrls: fileUrls,
+            dueDate: dueDate,
           });
       } else {
         // Create a new announcement
@@ -88,6 +96,7 @@ const Main = ({ classData }) => {
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             text: inputValue.trim(),
             fileUrls: fileUrls,
+            dueDate: dueDate, // Save due date
             sender: loggedInUser?.displayName || loggedInMail,
             senderPhotoURL: loggedInUser?.photoURL || "",
           });
@@ -96,16 +105,19 @@ const Main = ({ classData }) => {
       // Reset state
       setInput("");
       setSelectedFiles([]);
+      setDueDate(""); // Reset due date field
       setEditingAnnouncement(null);
       setShowInput(false);
     } catch (error) {
       console.error("Error saving announcement:", error);
     }
   };
+
   // Function to edit an announcement
   const handleEdit = (announcement) => {
     setInput(announcement.text);
     setSelectedFiles(announcement.fileUrls || []);
+    setDueDate(announcement.dueDate || "");
     setEditingAnnouncement(announcement);
     setShowInput(true);
   };
@@ -132,70 +144,110 @@ const Main = ({ classData }) => {
             </div>
           </div>
         </div>
-        <div className="main__announce">
-          <div className="main__status">
-            <p>Upcoming</p>
-            <p className="main__subText">No work due</p>
-          </div>
-          <div className="main__announcements">
-            <div className="main__announcementsWrapper">
-              <div className="main__ancContent">
-                {showInput ? (
-                  <div className="main__form">
-                    <TextField
-                      id="filled-multiline-flexible"
-                      multiline
-                      label="Announce Something to class"
-                      variant="filled"
-                      value={inputValue}
-                      onChange={(e) => setInput(e.target.value)}
+
+        {/* Upcoming Section */}
+        
+        <div className="main__status">
+          <p>Upcoming</p>
+
+          {announcements
+            .filter((announcement) => announcement.dueDate) // Keep only announcements with a due date
+            .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)) // Sort by earliest due date
+            .slice(0, 1) // Take only the first (earliest) one
+            .map((announcement, index) => (
+              <p key={index} className="main__subText">
+                <strong>
+                  Due{" "}
+                  {new Date(announcement.dueDate).toLocaleDateString("en-US", {
+                    weekday: "long",
+                  })}
+                </strong>
+                <br />
+                {new Date(announcement.dueDate).toLocaleTimeString("en-US", {
+                  hour: "numeric",
+                  minute: "2-digit",
+                  hour12: true,
+                })}{" "}
+                – {announcement.text}
+              </p>
+            ))}
+
+          <Link to="/upcoming">Show All</Link>
+        </div>
+
+        {/* Announcements */}
+        <div className="main__announcements">
+          <div className="main__announcementsWrapper">
+            <div className="main__ancContent">
+              {showInput ? (
+                <div className="main__form">
+                  <TextField
+                    id="filled-multiline-flexible"
+                    multiline
+                    label="Announce Something to class"
+                    variant="filled"
+                    value={inputValue}
+                    onChange={(e) => setInput(e.target.value)}
+                  />
+
+                  {/* Due Date Picker */}
+                  <TextField
+                    id="due-date"
+                    label="Due Date"
+                    type="datetime-local"
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
+                  />
+
+                  {/* File Upload */}
+                  <div className="main__buttons">
+                    <input
+                      type="file"
+                      multiple
+                      onChange={handleFileChange}
+                      accept="*/*"
                     />
-                    <div className="main__buttons">
-                      <input
-                        type="file"
-                        multiple
-                        onChange={handleFileChange}
-                        accept="*/*" // Allow all file types
-                      />
-                      {selectedFiles.length > 0 && (
-                        <div>
-                          <p>Selected Files:</p>
-                          <ul>
-                            {selectedFiles.map((file, index) => (
-                              <li key={index}>{file.name}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-
+                    {selectedFiles.length > 0 && (
                       <div>
-                        <Button onClick={() => setShowInput(false)}>
-                          Cancel
-                        </Button>
-
-                        <Button
-                          onClick={handleUpload}
-                          color="primary"
-                          variant="contained"
-                        >
-                          {editingAnnouncement?.id ? "Update" : "Announce"}
-                        </Button>
+                        <p>Selected Files:</p>
+                        <ul>
+                          {selectedFiles.map((file, index) => (
+                            <li key={index}>{file.name}</li>
+                          ))}
+                        </ul>
                       </div>
+                    )}
+
+                    <div>
+                      <Button onClick={() => setShowInput(false)}>
+                        Cancel
+                      </Button>
+
+                      <Button
+                        onClick={handleUpload}
+                        color="primary"
+                        variant="contained"
+                      >
+                        {editingAnnouncement?.id ? "Update" : "Announce"}
+                      </Button>
                     </div>
                   </div>
-                ) : (
-                  <div
-                    className="main__wrapper100"
-                    onClick={() => setShowInput(true)}
-                  >
-                    <Avatar />
-                    <div>Announce Something to class</div>
-                  </div>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div
+                  className="main__wrapper100"
+                  onClick={() => setShowInput(true)}
+                >
+                  <Avatar />
+                  <div>Announce Something to class</div>
+                </div>
+              )}
             </div>
-            <ClassRoomAnnouncement classData={classData} onEdit={handleEdit} />
           </div>
+          <ClassRoomAnnouncement classData={classData} onEdit={handleEdit} />
         </div>
       </div>
     </div>

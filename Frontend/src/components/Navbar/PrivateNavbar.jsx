@@ -8,7 +8,6 @@ import { useDispatch } from "react-redux";
 import { logoutAction } from "../../redux/slice/authSlice";
 import { HiSun, HiMoon } from "react-icons/hi";
 import { getUserFromStorage } from "../../utils/getUserFromStorage";
-import axios from "axios";
 import { BASE_URL } from "../../utils/url";
 import badgeImage from "../../assets/newBie.jpg";
 import striver from "../../assets/striver.jpg";

@@ -26,6 +26,8 @@ import ExamList from "./components/Exam/ExamList";
 import StorePage from "./components/Store/StorePage";
 import { BASE_URL } from "./utils/url";
 import axios from "axios";
+import SubmittedAssignments from "./components/SubmittedAssignments/SubmittedAssignments";
+import DisplayAssignments from "./components/DueDate/DisplayAssignments";
 
 function App() {
   const token = getUserFromStorage();
@@ -34,6 +36,7 @@ function App() {
   console.log(token);
   const [createdClasses, setCreatedClasses] = useState([]);
   const [joinedClasses, setJoinedClasses] = useState([]);
+  // const [announcements, setAnnouncements] = useState([]);
 
   useEffect(() => {
     if (loggedInMail) {
@@ -63,42 +66,7 @@ function App() {
     }
   }, [loggedInMail]);
   console.log(joinedClasses);
-  
-  useEffect(() => {
-    const checkInUser = async () => {
-      if (!token) return;
-  
-      try {
-        // Fetch current aura points before check-in
-        const profileResponse = await axios.get(`${BASE_URL}/users/profile`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-  
-        const oldAuraPoints = profileResponse.data.auraPoints;
-  
-        // Perform daily check-in
-        const checkInResponse = await axios.post(
-          `${BASE_URL}/users/daily-check`,
-          {},
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-  
-        const newAuraPoints = checkInResponse.data.auraPoints;
-  
-        // Show alert only if points have increased
-        if (newAuraPoints > oldAuraPoints) {
-          alert(`🎉 Daily Check-in Complete!! 🪙 +1 point`);
-        }
-      } catch (error) {
-        console.error("Daily check-in failed:", error.response?.data?.message || "Server error");
-      }
-    };
-  
-    checkInUser();
-  }, [token]);
-  
-  
-  
+
   return (
     <BrowserRouter>
       <Routes>
@@ -225,7 +193,6 @@ function App() {
           }
         />
 
-        
         <Route
           path="/add-subject"
           element={
@@ -233,7 +200,6 @@ function App() {
               <>
                 <PrivateNavbar />
                 <AddSubject />
-
               </>
             </AuthRoute>
           }
@@ -245,7 +211,6 @@ function App() {
               <>
                 <PrivateNavbar />
                 <AddSubject />
-
               </>
             </AuthRoute>
           }
@@ -253,9 +218,9 @@ function App() {
         <Route
           path="/exam-dashboard"
           element={
-          <AuthRoute>
-            <ExamList />
-          </AuthRoute>
+            <AuthRoute>
+              <ExamList />
+            </AuthRoute>
           }
         />
         {/* <Route
@@ -267,7 +232,6 @@ function App() {
           }
         /> */}
 
-        
         <Route
           path="/tasks"
           element={
@@ -290,8 +254,6 @@ function App() {
             </AuthRoute>
           }
         />
-        
-
 
         {/* Dynamic Routes for Created Classes */}
         {createdClasses.map((item, index) => (
@@ -308,18 +270,55 @@ function App() {
         ))}
 
         {/* Dynamic Routes for Joined Classes */}
-        {joinedClasses.map((item,index) => (
+        {joinedClasses.map((item, index) => (
           <Route
             key={index}
             path={`/${item.id}`}
             element={
               <ProtectedRoute user={loggedInMail}>
                 <PrivateNavbar />
-                <Main classData={item}/>
+                <Main classData={item} />
               </ProtectedRoute>
             }
           />
         ))}
+
+        <Route
+          path="/submissions/:classId/:postId"
+          element={
+            <ProtectedRoute user={loggedInMail}>
+              <SubmittedAssignments />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* {createdClasses.map((item, index) => (
+          <Route
+            key={index}
+            path="/upcoming"
+            element={
+              <ProtectedRoute user={loggedInMail}>
+                
+                <DisplayAssignments classData={item} />
+              </ProtectedRoute>
+            }
+          />
+        ))} */}
+
+        {/* only for the users due dates of the assignments are displayed(i.e joined users) */}
+        {joinedClasses.map((item, index) => (
+          <Route
+            key={index}
+            path="/upcoming"
+            element={
+              <ProtectedRoute user={loggedInMail}>
+                
+                <DisplayAssignments classData={item}/>
+              </ProtectedRoute>
+            }
+          />
+        ))}
+        
       </Routes>
     </BrowserRouter>
   );
