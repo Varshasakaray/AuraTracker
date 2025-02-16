@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
-import { Disclosure, Menu, Transition } from "@headlessui/react";
-import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Disclosure, Dialog } from "@headlessui/react";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
 import { IoLogOutOutline } from "react-icons/io5";
 import { SiAuthy } from "react-icons/si";
@@ -10,6 +10,26 @@ import { HiSun, HiMoon } from "react-icons/hi";
 import { getUserFromStorage } from "../../utils/getUserFromStorage";
 import axios from "axios";
 import { BASE_URL } from "../../utils/url";
+import badgeImage from "../../assets/newBie.jpg";
+import striver from "../../assets/striver.jpg";
+import risingStar from "../../assets/risingStar.jpg";
+import paceseter from "../../assets/paceseter.jpg";
+import legend from "../../assets/legend.jpg";
+import trailBlind from "../../assets/trailBlind.jpg";
+import trailBlozer from "../../assets/trailBlozer.jpg";
+import masterMind from "../../assets/masterMind.jpg";
+
+const badgeThresholds = [
+  { points: 50, name: "Newbie", image: badgeImage },
+  { points: 100, name: "Striver", image: striver },
+  { points: 150, name: "Achiever", image: risingStar },
+  { points: 200, name: "Expert", image: paceseter },
+  { points: 500, name: "Master", image: legend },
+  { points: 1000, name: "Trailblazer", image: trailBlind },
+  { points: 2000, name: "Pioneer", image: trailBlozer },
+  { points: 5000, name: "Mastermind", image: masterMind }
+];
+
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
@@ -18,15 +38,18 @@ export default function PrivateNavbar() {
   const dispatch = useDispatch();
   const [darkMode, setDarkMode] = useState(false);
   const user = JSON.parse(localStorage.getItem("userInfo") || null);
-  const [auraPoints, setAuraPoints] = useState(user?.auraPoints || 0); // Initialize state
-  
+  const [auraPoints, setAuraPoints] = useState(user?.auraPoints || 0);
+  const [badges, setBadges] = useState([]);
+  const [latestBadge, setLatestBadge] = useState(null);
+  const [badgePopupVisible, setBadgePopupVisible] = useState(false);
+  const [earnedBadgesModal, setEarnedBadgesModal] = useState(false);
+
   const toggleTheme = () => {
     setDarkMode(!darkMode);
     localStorage.setItem("theme", darkMode ? "light" : "dark");
   };
 
   const logoutHandler = () => {
-    console.log("logout");
     dispatch(logoutAction());
     localStorage.removeItem("userInfo");
   };
@@ -42,6 +65,7 @@ export default function PrivateNavbar() {
       document.body.style.color = "#1a202c";
     }
   }, [darkMode]);
+
   useEffect(() => {
     const fetchAuraPoints = async () => {
       const token = getUserFromStorage();
@@ -49,13 +73,19 @@ export default function PrivateNavbar() {
         const response = await axios.get(`${BASE_URL}/users/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setAuraPoints(response.data.auraPoints || 0);
+  
+        const points = response.data.auraPoints || 0;
+        const serverBadges = response.data.badges || [];
+        setAuraPoints(points);
+        setBadges(serverBadges);
+  
         // Update local storage for consistency
-        const userData = JSON.parse(localStorage.getItem("userInfo"));
-        if (userData) {
-          userData.auraPoints = response.data.auraPoints;
-          localStorage.setItem("userInfo", JSON.stringify(userData));
-        }
+        const userData = JSON.parse(localStorage.getItem("userInfo")) || {};
+        userData.auraPoints = points;
+        userData.badges = serverBadges;
+        localStorage.setItem("userInfo", JSON.stringify(userData));
+  
+        updateBadge(points, serverBadges);
       } catch (error) {
         console.error("Error fetching Aura Points:", error);
       }
@@ -69,19 +99,61 @@ export default function PrivateNavbar() {
     const handleStorageChange = () => {
       const userData = JSON.parse(localStorage.getItem("userInfo"));
       setAuraPoints(userData?.auraPoints || 0);
+      updateBadge(userData?.auraPoints || 0);
     };
-  
+
     window.addEventListener("storage", handleStorageChange);
-  
-    // Initial load
     handleStorageChange();
-  
+
     return () => {
       window.removeEventListener("storage", handleStorageChange);
     };
   }, []);
+  const updateBadge = async (points, serverBadges = []) => {
+    const earnedBadge = badgeThresholds
+      .slice()
+      .reverse()
+      .find((badge) => points >= badge.points);
   
+    // Retrieve previously earned badges from local storage
+    const userData = JSON.parse(localStorage.getItem("userInfo")) || {};
+    const storedBadges = userData.badges || [];
+  
+    if (earnedBadge && !storedBadges.includes(earnedBadge.name)) {
+      setLatestBadge(earnedBadge);
+      setBadgePopupVisible(true);
+  
+      // Ensure we keep old badges and add new one
+      const updatedBadges = [...new Set([...storedBadges, earnedBadge.name])];
+      setBadges(updatedBadges);
+      userData.badges = updatedBadges;
+      localStorage.setItem("userInfo", JSON.stringify(userData));
+  
+      // Save earned badges to MongoDB
+      try {
+        const token = getUserFromStorage();
+        await axios.put(`${BASE_URL}/users/update-badges`, { badges: updatedBadges }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      } catch (error) {
+        console.error("Error updating badges in MongoDB:", error);
+      }
+    }
+  };
 
+  // Ensure latest badge persists on refresh
+const fetchLatestBadge = async () => {
+  const userData = JSON.parse(localStorage.getItem("userInfo")) || {};
+  const storedBadges = userData.badges || [];
+  if (storedBadges.length > 0) {
+    const latestEarnedBadge = badgeThresholds.find(b => b.name === storedBadges[storedBadges.length - 1]);
+    setLatestBadge(latestEarnedBadge);
+  }
+};
+
+useEffect(() => {
+  fetchLatestBadge();
+}, []);
   return (
     <div>
       <Disclosure as="nav" className={darkMode ? "bg-gray-900" : "bg-white"}>
@@ -169,30 +241,29 @@ export default function PrivateNavbar() {
                 </div>
                 <div className="flex items-center">
                 <Fragment>
-  <style>{`
-    @keyframes spin {
-      0% { transform: rotateY(0deg); }
-      100% { transform: rotateY(360deg); }
-    }
-    .coin {
-      height: 24px;
-      width: 24px;
-      background: radial-gradient(circle, gold, orange);
-      border-radius: 50%;
-      display: inline-block;
-      animation: spin 2s linear infinite;
-    }
-  `}</style>
-  <div className="flex items-center ml-6 space-x-2">
-    <div className="coin"></div>
-    <span
-  className={darkMode ? "text-sm font-medium text-gray-300" : "text-sm font-medium text-gray-900"}
->
-  Aura Points: {auraPoints}
-</span>
-
-  </div>
-</Fragment>
+                  <style>{`
+                    @keyframes spin {
+                    0% { transform: rotateY(0deg); }
+                    100% { transform: rotateY(360deg); }
+                    }
+                    .coin {
+                    height: 24px;
+                    width: 24px;
+                    background: radial-gradient(circle, gold, orange);
+                    border-radius: 50%;
+                    display: inline-block;
+                    animation: spin 2s linear infinite;
+                    }
+                  `}</style>
+                  <div className="flex items-center ml-6 space-x-2">
+                  <div className="coin"></div>
+                  <span
+                    className={darkMode ? "text-sm font-medium text-gray-300" : "text-sm font-medium text-gray-900"}>
+                    Aura Points: {auraPoints}
+                  </span>
+  
+                  </div>
+                  </Fragment>
 
 
                   <div className="flex-shrink-0">
@@ -215,12 +286,89 @@ export default function PrivateNavbar() {
                   >
                     {darkMode ? <HiSun className="h-6 w-6" /> : <HiMoon className="h-6 w-6" />}
                   </button>
+                  {latestBadge && (
+                      <div className="relative">
+                        <button
+                          onClick={() => setEarnedBadgesModal(true)}
+                          className="h-10 w-10 rounded-full bg-yellow-400 border-2 border-gray-800"
+                          title="View Earned Badges"
+                        >
+                          <img
+                            src={latestBadge.image}
+                            alt="Badge"
+                            className="rounded-full h-full w-full"
+                          />
+                        </button>
+                      </div>
+                    )}
                 </div>
+
               </div>
             </div>
           </>
         )}
       </Disclosure>
+      {/* Badge Popup */}
+      {badgePopupVisible && (
+        <Dialog open={badgePopupVisible} onClose={() => setBadgePopupVisible(false)}>
+          <div className="fixed inset-0 z-10 overflow-y-auto">
+            <div className="flex items-center justify-center min-h-screen">
+              <div className="bg-white p-6 rounded-lg shadow-md max-w-sm text-center">
+                <h2 className="text-2xl font-bold mb-4">Congratulations!</h2>
+                <p className="text-lg mb-4">You have earned the "{latestBadge?.name}" badge!</p>
+                <img
+                  src={latestBadge?.image}
+                  alt="Badge"
+                  className="mx-auto w-32 h-32 rounded-full border border-gray-300 shadow-md"
+                />
+                <button
+                  className="mt-6 bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
+                  onClick={() => setBadgePopupVisible(false)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </Dialog>
+      )}
+
+      {/* Earned Badges Modal */}
+      {earnedBadgesModal && (
+  <Dialog open={earnedBadgesModal} onClose={() => setEarnedBadgesModal(false)}>
+    <div className="fixed inset-0 z-10 overflow-y-auto bg-gray-800 bg-opacity-75 flex items-center justify-center">
+      <div 
+        className="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 text-center relative"
+        style={{ backgroundImage: "url('/congratulation.png')", backgroundSize: "cover", backgroundPosition: "center" }}
+      >
+        <h2 className="text-3xl font-bold text-gray-800 mb-6">Your Earned Badges</h2>
+        <ul className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          {badges.length > 0 ? (
+            badges.map((badgeName, index) => {
+              const badge = badgeThresholds.find(b => b.name === badgeName);
+              return (
+                <li key={index} className="flex flex-col items-center cursor-pointer hover:scale-110 transition-transform"
+                    onClick={() => setLatestBadge(badge)}>
+                  <img src={badge?.image} alt={badgeName} className="h-24 w-24 md:h-28 md:w-28 rounded-full border-4 border-gray-300 shadow-lg" />
+                  <span className="text-lg text-gray-700 mt-2 font-semibold">{badgeName}</span>
+                </li>
+              );
+            })
+          ) : (
+            <li className="text-gray-600 text-lg">No badges earned yet.</li>
+          )}
+        </ul>
+        <button
+          className="mt-8 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition text-lg"
+          onClick={() => setEarnedBadgesModal(false)}
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </Dialog>
+)}
+
     </div>
   );
 }
