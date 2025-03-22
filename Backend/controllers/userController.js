@@ -158,6 +158,7 @@ const usersController = {
             }
         });
     }),
+    
     // Daily Check-in Controller
     dailyCheckIn: asyncHandler(async (req, res) => {
         console.log("Daily Check-in Route Hit");

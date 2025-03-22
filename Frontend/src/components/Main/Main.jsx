@@ -15,31 +15,63 @@ const Main = ({ classData }) => {
   const [inputValue, setInput] = useState("");
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [editingAnnouncement, setEditingAnnouncement] = useState(null);
-  const [dueDate, setDueDate] = useState(""); // Stores the selected due date
-  const [announcements, setAnnouncements] = useState([]); // Stores fetched announcements
+  const [dueDate, setDueDate] = useState("");
+  const [announcements, setAnnouncements] = useState([]);
+  const [submittedPosts, setSubmittedPosts] = useState({});
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
 
-  // Fetch announcements from Firestore
+  // Fetch announcements and submission status with real-time updates
   useEffect(() => {
-    const fetchAnnouncements = async () => {
-      try {
-        const snapshot = await db
-          .collection("announcements")
-          .doc("classes")
-          .collection(classData.id)
-          .orderBy("timestamp", "desc")
-          .get();
-        const fetchedAnnouncements = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setAnnouncements(fetchedAnnouncements);
-      } catch (error) {
-        console.error("Error fetching announcements:", error);
-      }
-    };
+    if (!classData?.id) return;
 
-    fetchAnnouncements();
-  }, [classData.id]);
+    const unsubscribeAnnouncements = db
+      .collection("announcements")
+      .doc("classes")
+      .collection(classData.id)
+      .orderBy("timestamp", "desc")
+      .onSnapshot(
+        async (snapshot) => {
+          const fetchedAnnouncements = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setAnnouncements(fetchedAnnouncements);
+
+          // Fetch initial submission status for all announcements
+          const submissionPromises = fetchedAnnouncements.map(async (announcement) => {
+            const snapshot = await db
+              .collection("announcements")
+              .doc(classData.id)
+              .collection("posts")
+              .doc(announcement.id)
+              .collection("assignments")
+              .where("uploaderEmail", "==", loggedInMail)
+              .get();
+            return { id: announcement.id, isSubmitted: !snapshot.empty };
+          });
+
+          const submissionResults = await Promise.all(submissionPromises);
+          const newSubmittedPosts = submissionResults.reduce((acc, { id, isSubmitted }) => {
+            acc[id] = isSubmitted;
+            return acc;
+          }, {});
+
+          setSubmittedPosts((prev) => ({ ...prev, ...newSubmittedPosts }));
+          setIsLoading(false); // Data is fully loaded
+        },
+        (error) => {
+          console.error("Error fetching announcements:", error);
+          setIsLoading(false);
+        }
+      );
+
+    return () => unsubscribeAnnouncements();
+  }, [classData?.id, loggedInMail]);
+
+  // Handle submission status updates from ClassRoomAnnouncement
+  const handleSubmissionChange = (postId, isSubmitted) => {
+    setSubmittedPosts((prev) => ({ ...prev, [postId]: isSubmitted }));
+  };
 
   // Handle file selection
   const handleFileChange = (event) => {
@@ -57,25 +89,17 @@ const Main = ({ classData }) => {
     try {
       let fileUrls = [];
       if (selectedFiles.length > 0) {
-        // Upload selected files to the server
         const formData = new FormData();
-        selectedFiles.forEach((file) => {
-          formData.append("files", file);
-        });
+        selectedFiles.forEach((file) => formData.append("files", file));
         const response = await axios.post(
           "http://localhost:8000/api/v1/upload",
           formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
+          { headers: { "Content-Type": "multipart/form-data" } }
         );
         fileUrls = response.data.fileUrls;
       }
 
       if (editingAnnouncement) {
-        // Update existing announcement
         await db
           .collection("announcements")
           .doc("classes")
@@ -87,7 +111,6 @@ const Main = ({ classData }) => {
             dueDate: dueDate,
           });
       } else {
-        // Create a new announcement
         await db
           .collection("announcements")
           .doc("classes")
@@ -96,16 +119,15 @@ const Main = ({ classData }) => {
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             text: inputValue.trim(),
             fileUrls: fileUrls,
-            dueDate: dueDate, // Save due date
+            dueDate: dueDate,
             sender: loggedInUser?.displayName || loggedInMail,
             senderPhotoURL: loggedInUser?.photoURL || "",
           });
       }
 
-      // Reset state
       setInput("");
       setSelectedFiles([]);
-      setDueDate(""); // Reset due date field
+      setDueDate("");
       setEditingAnnouncement(null);
       setShowInput(false);
     } catch (error) {
@@ -113,13 +135,24 @@ const Main = ({ classData }) => {
     }
   };
 
-  // Function to edit an announcement
+  // Edit an announcement
   const handleEdit = (announcement) => {
     setInput(announcement.text);
     setSelectedFiles(announcement.fileUrls || []);
     setDueDate(announcement.dueDate || "");
     setEditingAnnouncement(announcement);
     setShowInput(true);
+  };
+
+  // Get the closest upcoming unsubmitted assignment
+  const getClosestUpcomingAssignment = () => {
+    const now = new Date();
+    const upcoming = announcements
+      .filter((announcement) => announcement.dueDate)
+      .filter((announcement) => new Date(announcement.dueDate) > now)
+      .filter((announcement) => !submittedPosts[announcement.id]) // Exclude submitted
+      .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+    return upcoming.length > 0 ? upcoming[0] : null;
   };
 
   return (
@@ -131,12 +164,8 @@ const Main = ({ classData }) => {
               <div className="main__emptyStyles" />
             </div>
             <div className="main__text">
-              <h1 className="main_heading main_overflow">
-                {classData.className}
-              </h1>
-              <div className="main_section main_overflow">
-                {classData.section}
-              </div>
+              <h1 className="main_heading main_overflow">{classData.className}</h1>
+              <div className="main_section main_overflow">{classData.section}</div>
               <div className="main__wrapper2">
                 <em className="main__code">Class Code :</em>
                 <div className="main__id">{classData.id}</div>
@@ -146,32 +175,34 @@ const Main = ({ classData }) => {
         </div>
 
         {/* Upcoming Section */}
-        
         <div className="main__status">
           <p>Upcoming</p>
-
-          {announcements
-            .filter((announcement) => announcement.dueDate) // Keep only announcements with a due date
-            .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)) // Sort by earliest due date
-            .slice(0, 1) // Take only the first (earliest) one
-            .map((announcement, index) => (
-              <p key={index} className="main__subText">
-                <strong>
-                  Due{" "}
-                  {new Date(announcement.dueDate).toLocaleDateString("en-US", {
-                    weekday: "long",
-                  })}
-                </strong>
-                <br />
-                {new Date(announcement.dueDate).toLocaleTimeString("en-US", {
-                  hour: "numeric",
-                  minute: "2-digit",
-                  hour12: true,
-                })}{" "}
-                – {announcement.text}
-              </p>
-            ))}
-
+          {isLoading ? (
+            <p>Loading...</p>
+          ) : (() => {
+              const closestAssignment = getClosestUpcomingAssignment();
+              if (closestAssignment) {
+                return (
+                  <p key={closestAssignment.id} className="main__subText">
+                    <strong>
+                      Due{" "}
+                      {new Date(closestAssignment.dueDate).toLocaleDateString("en-US", {
+                        weekday: "long",
+                      })}
+                    </strong>
+                    <br />
+                    {new Date(closestAssignment.dueDate).toLocaleTimeString("en-US", {
+                      hour: "numeric",
+                      minute: "2-digit",
+                      hour12: true,
+                    })}{" "}
+                    – {closestAssignment.text}
+                  </p>
+                );
+              } else {
+                return <p>No upcoming assignments.</p>;
+              }
+            })()}
           <Link to="/upcoming">Show All</Link>
         </div>
 
@@ -189,27 +220,16 @@ const Main = ({ classData }) => {
                     value={inputValue}
                     onChange={(e) => setInput(e.target.value)}
                   />
-
-                  {/* Due Date Picker */}
                   <TextField
                     id="due-date"
                     label="Due Date"
                     type="datetime-local"
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
+                    InputLabelProps={{ shrink: true }}
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
                   />
-
-                  {/* File Upload */}
                   <div className="main__buttons">
-                    <input
-                      type="file"
-                      multiple
-                      onChange={handleFileChange}
-                      accept="*/*"
-                    />
+                    <input type="file" multiple onChange={handleFileChange} accept="*/*" />
                     {selectedFiles.length > 0 && (
                       <div>
                         <p>Selected Files:</p>
@@ -220,34 +240,27 @@ const Main = ({ classData }) => {
                         </ul>
                       </div>
                     )}
-
                     <div>
-                      <Button onClick={() => setShowInput(false)}>
-                        Cancel
-                      </Button>
-
-                      <Button
-                        onClick={handleUpload}
-                        color="primary"
-                        variant="contained"
-                      >
+                      <Button onClick={() => setShowInput(false)}>Cancel</Button>
+                      <Button onClick={handleUpload} color="primary" variant="contained">
                         {editingAnnouncement?.id ? "Update" : "Announce"}
                       </Button>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div
-                  className="main__wrapper100"
-                  onClick={() => setShowInput(true)}
-                >
+                <div className="main__wrapper100" onClick={() => setShowInput(true)}>
                   <Avatar />
                   <div>Announce Something to class</div>
                 </div>
               )}
             </div>
           </div>
-          <ClassRoomAnnouncement classData={classData} onEdit={handleEdit} />
+          <ClassRoomAnnouncement
+            classData={classData}
+            onEdit={handleEdit}
+            onSubmissionChange={handleSubmissionChange}
+          />
         </div>
       </div>
     </div>
