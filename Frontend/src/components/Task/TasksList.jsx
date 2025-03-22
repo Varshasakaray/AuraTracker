@@ -44,7 +44,7 @@ const TasksList = () => {
     if (completed < 100) {
       return "You're almost there! Finish strong!";
     }
-    return "Amazing! You've completed all your tasks!";
+    return "Add Tasks to know your progress!";
   };
 
   // Navigate

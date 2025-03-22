@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
   regnum: { type: String, required: true, unique: true },
   auraPoints:{ type:Number, default:0},
   lastCheckIn:{type:Date,default:null},
+  badges:{type:[String],default:[]}
 });
 
 export default mongoose.model('User', userSchema);

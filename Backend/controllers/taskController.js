@@ -1,7 +1,7 @@
 import asyncHandler from "express-async-handler";
 import Task from "../models/Task.js";
 import User from "../models/User.js";
-
+import auraController from "./auraController.js";
 
 const taskController = {
   //!add
@@ -39,34 +39,28 @@ const taskController = {
   //!update
   update: asyncHandler(async (req, res) => {
     try {
-      console.log("Request params:", req.params);
-      console.log("Request body:", req.body);
-  
       const { TaskId } = req.params;
       const { type, name } = req.body;
       const normalizedName = name?.toLowerCase();
       const taskToUpdate = await Task.findById(TaskId);
-  
+
       if (!taskToUpdate || taskToUpdate.user.toString() !== req.user.toString()) {
         return res.status(404).json({ message: "Task not found or user not authorized" });
       }
-  
+
       taskToUpdate.name = normalizedName || taskToUpdate.name;
       taskToUpdate.type = type || taskToUpdate.type;
-  
+
       const updatedTask = await taskToUpdate.save();
-  
+
+      let updatedUser = null;
+
       if (type === "complete") {
         console.log("Adding aura points to user:", req.user);
-        const updatedUser = await User.findByIdAndUpdate(
-          req.user,
-          { $inc: { auraPoints: 10 } },
-          { new: true } // Ensure we get the updated user document
-        );
-        res.json({ updatedTask, updatedUser }); // Return both task and user
-      } else {
-        res.json(updatedTask);
+        updatedUser = await auraController(req.user, 10); // Add points and assign badges
       }
+
+      res.json({ updatedTask, updatedUser });
     } catch (error) {
       console.error("Error updating task:", error);
       res.status(500).json({ message: "Internal Server Error", error: error.message });
