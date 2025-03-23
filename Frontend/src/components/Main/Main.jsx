@@ -18,7 +18,11 @@ const Main = ({ classData }) => {
   const [dueDate, setDueDate] = useState("");
   const [announcements, setAnnouncements] = useState([]);
   const [submittedPosts, setSubmittedPosts] = useState({});
-  const [isLoading, setIsLoading] = useState(true); // Add loading state
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Check if the current user is the owner using classData.owner
+  const isOwner = classData?.owner === loggedInMail;
+  console.log("isOwner:", isOwner, "loggedInMail:", loggedInMail, "owner:", classData?.owner);
 
   // Fetch announcements and submission status with real-time updates
   useEffect(() => {
@@ -57,7 +61,7 @@ const Main = ({ classData }) => {
           }, {});
 
           setSubmittedPosts((prev) => ({ ...prev, ...newSubmittedPosts }));
-          setIsLoading(false); // Data is fully loaded
+          setIsLoading(false);
         },
         (error) => {
           console.error("Error fetching announcements:", error);
@@ -73,22 +77,23 @@ const Main = ({ classData }) => {
     setSubmittedPosts((prev) => ({ ...prev, [postId]: isSubmitted }));
   };
 
-  // Handle file selection
+  // Handle file selection (only for owner)
   const handleFileChange = (event) => {
+    if (!isOwner) return; // Restrict to owner only
     const files = Array.from(event.target.files);
     setSelectedFiles(files);
   };
 
   // Save announcement to Firestore
   const handleUpload = async () => {
-    if (!inputValue.trim() && selectedFiles.length === 0) {
-      alert("Please enter some text or select a file!");
+    if (!inputValue.trim() && (!isOwner || selectedFiles.length === 0)) {
+      alert("Please enter some text" + (isOwner ? " or select a file!" : "!"));
       return;
     }
 
     try {
       let fileUrls = [];
-      if (selectedFiles.length > 0) {
+      if (isOwner && selectedFiles.length > 0) {
         const formData = new FormData();
         selectedFiles.forEach((file) => formData.append("files", file));
         const response = await axios.post(
@@ -107,8 +112,8 @@ const Main = ({ classData }) => {
           .doc(editingAnnouncement.id)
           .update({
             text: inputValue.trim(),
-            fileUrls: fileUrls,
-            dueDate: dueDate,
+            ...(isOwner && { fileUrls: fileUrls }), // Only update fileUrls for owner
+            ...(isOwner && { dueDate: dueDate }),   // Only update dueDate for owner
           });
       } else {
         await db
@@ -118,9 +123,9 @@ const Main = ({ classData }) => {
           .add({
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             text: inputValue.trim(),
-            fileUrls: fileUrls,
-            dueDate: dueDate,
-            sender: loggedInUser?.displayName || loggedInMail,
+            ...(isOwner && { fileUrls: fileUrls }), // Only include fileUrls for owner
+            ...(isOwner && { dueDate: dueDate }),   // Only include dueDate for owner
+            sender: loggedInMail,
             senderPhotoURL: loggedInUser?.photoURL || "",
           });
       }
@@ -135,16 +140,18 @@ const Main = ({ classData }) => {
     }
   };
 
-  // Edit an announcement
+  // Edit an announcement (only set dueDate and files for owner)
   const handleEdit = (announcement) => {
     setInput(announcement.text);
-    setSelectedFiles(announcement.fileUrls || []);
-    setDueDate(announcement.dueDate || "");
+    if (isOwner) {
+      setSelectedFiles(announcement.fileUrls || []);
+      setDueDate(announcement.dueDate || "");
+    }
     setEditingAnnouncement(announcement);
     setShowInput(true);
   };
 
-  // Get the closest upcoming unsubmitted assignment
+  // Get the closest upcoming unsubmitted assignment (for joined members only)
   const getClosestUpcomingAssignment = () => {
     const now = new Date();
     const upcoming = announcements
@@ -174,39 +181,43 @@ const Main = ({ classData }) => {
           </div>
         </div>
 
-        {/* Upcoming Section */}
-        <div className="main__status">
-          <p>Upcoming</p>
-          {isLoading ? (
-            <p>Loading...</p>
-          ) : (() => {
-              const closestAssignment = getClosestUpcomingAssignment();
-              if (closestAssignment) {
-                return (
-                  <p key={closestAssignment.id} className="main__subText">
-                    <strong>
-                      Due{" "}
-                      {new Date(closestAssignment.dueDate).toLocaleDateString("en-US", {
-                        weekday: "long",
-                      })}
-                    </strong>
-                    <br />
-                    {new Date(closestAssignment.dueDate).toLocaleTimeString("en-US", {
-                      hour: "numeric",
-                      minute: "2-digit",
-                      hour12: true,
-                    })}{" "}
-                    – {closestAssignment.text}
-                  </p>
-                );
-              } else {
-                return <p>No upcoming assignments.</p>;
-              }
-            })()}
-          <Link to="/upcoming">Show All</Link>
-        </div>
+        {/* Upcoming Section - Only for Joined Members (not owner) */}
+        {!isOwner && (
+          <div className="main__status">
+            <p>Upcoming</p>
+            {isLoading ? (
+              <p>Loading...</p>
+            ) : (
+              (() => {
+                const closestAssignment = getClosestUpcomingAssignment();
+                if (closestAssignment) {
+                  return (
+                    <p key={closestAssignment.id} className="main__subText">
+                      <strong>
+                        Due{" "}
+                        {new Date(closestAssignment.dueDate).toLocaleDateString("en-US", {
+                          weekday: "long",
+                        })}
+                      </strong>
+                      <br />
+                      {new Date(closestAssignment.dueDate).toLocaleTimeString("en-US", {
+                        hour: "numeric",
+                        minute: "2-digit",
+                        hour12: true,
+                      })}{" "}
+                      – {closestAssignment.text}
+                    </p>
+                  );
+                } else {
+                  return <p>No upcoming assignments.</p>;
+                }
+              })()
+            )}
+            <Link to="/upcoming">Show All</Link>
+          </div>
+        )}
 
-        {/* Announcements */}
+        {/* Announcements Section */}
         <div className="main__announcements">
           <div className="main__announcementsWrapper">
             <div className="main__ancContent">
@@ -220,32 +231,34 @@ const Main = ({ classData }) => {
                     value={inputValue}
                     onChange={(e) => setInput(e.target.value)}
                   />
-                  <TextField
-                    id="due-date"
-                    label="Due Date"
-                    type="datetime-local"
-                    InputLabelProps={{ shrink: true }}
-                    value={dueDate}
-                    onChange={(e) => setDueDate(e.target.value)}
-                  />
+                  {isOwner && (
+                    <>
+                      <TextField
+                        id="due-date"
+                        label="Due Date"
+                        type="datetime-local"
+                        InputLabelProps={{ shrink: true }}
+                        value={dueDate}
+                        onChange={(e) => setDueDate(e.target.value)}
+                      />
+                      <input type="file" multiple onChange={handleFileChange} accept="*/*" />
+                      {selectedFiles.length > 0 && (
+                        <div>
+                          <p>Selected Files:</p>
+                          <ul>
+                            {selectedFiles.map((file, index) => (
+                              <li key={index}>{file.name}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </>
+                  )}
                   <div className="main__buttons">
-                    <input type="file" multiple onChange={handleFileChange} accept="*/*" />
-                    {selectedFiles.length > 0 && (
-                      <div>
-                        <p>Selected Files:</p>
-                        <ul>
-                          {selectedFiles.map((file, index) => (
-                            <li key={index}>{file.name}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    <div>
-                      <Button onClick={() => setShowInput(false)}>Cancel</Button>
-                      <Button onClick={handleUpload} color="primary" variant="contained">
-                        {editingAnnouncement?.id ? "Update" : "Announce"}
-                      </Button>
-                    </div>
+                    <Button onClick={() => setShowInput(false)}>Cancel</Button>
+                    <Button onClick={handleUpload} color="primary" variant="contained">
+                      {editingAnnouncement?.id ? "Update" : "Announce"}
+                    </Button>
                   </div>
                 </div>
               ) : (
@@ -256,6 +269,7 @@ const Main = ({ classData }) => {
               )}
             </div>
           </div>
+          {/* ClassRoomAnnouncement visible to all */}
           <ClassRoomAnnouncement
             classData={classData}
             onEdit={handleEdit}

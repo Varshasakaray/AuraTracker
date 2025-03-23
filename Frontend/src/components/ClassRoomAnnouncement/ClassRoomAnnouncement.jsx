@@ -18,9 +18,15 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
   const [submittedAssignments, setSubmittedAssignments] = useState({});
   const isAdmin = loggedInMail === classData?.owner;
 
+  // const handleMenuOpen = (event, announcement) => {
+  //   setAnchorEl(event.currentTarget);
+  //   setSelectedAnnouncement(announcement);
+  // };
   const handleMenuOpen = (event, announcement) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedAnnouncement(announcement);
+    if (announcement.sender === loggedInMail) {
+      setAnchorEl(event.currentTarget);
+      setSelectedAnnouncement(announcement);
+    }
   };
 
   const handleMenuClose = () => {
@@ -163,13 +169,23 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
             <div className="amt__top">
               <Avatar src={item.senderPhotoURL} alt={item.sender} />
               <div>{item.sender}</div>
-              <IconButton
+              {/* <IconButton
                 aria-controls="announcement-menu"
                 aria-haspopup="true"
                 onClick={(e) => handleMenuOpen(e, item)}
               >
                 <MoreVertIcon />
-              </IconButton>
+              </IconButton> */}
+
+              {item.sender === loggedInMail && (
+                <IconButton
+                  aria-controls="announcement-menu"
+                  aria-haspopup="true"
+                  onClick={(e) => handleMenuOpen(e, item)}
+                >
+                  <MoreVertIcon />
+                </IconButton>
+              )}
             </div>
             <p className="amt__txt">{item.text}</p>
             {item.fileUrls && item.fileUrls.length > 0 && (
@@ -189,8 +205,14 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
                   } else if (fileExtension === "pdf") {
                     return (
                       <div key={index} className="amt__pdf">
-                        <a href={filePath} target="_blank" rel="noopener noreferrer">
-                          <PictureAsPdfIcon style={{ color: "red", fontSize: "5rem" }} />
+                        <a
+                          href={filePath}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <PictureAsPdfIcon
+                            style={{ color: "red", fontSize: "5rem" }}
+                          />
                         </a>
                       </div>
                     );
@@ -200,18 +222,25 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
                 })}
               </div>
             )}
-            {isAdmin && (
+            {isAdmin && item.sender === loggedInMail && (
               <button
                 className="view-submissions-btn"
-                onClick={() => navigate(`/submissions/${classData.id}/${item.id}`)}
+                onClick={() =>
+                  navigate(`/submissions/${classData.id}/${item.id}`)
+                }
               >
                 View Submitted Assignments
               </button>
             )}
+
+            {isAdmin && item.sender !== loggedInMail && <></>}
+
             {!isAdmin && item.sender !== loggedInMail && (
               <div className="amt__upload">
                 {submittedAssignments[item.id] ? (
-                  <p className="submission-success">✅ Successfully Submitted</p>
+                  <p className="submission-success">
+                    ✅ Successfully Submitted
+                  </p>
                 ) : (
                   <>
                     <input type="file" multiple onChange={handleFileChange} />
