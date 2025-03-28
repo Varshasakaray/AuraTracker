@@ -50,11 +50,11 @@ function DisplayAssignments({ classData }) {
     };
 
     fetchAssignments();
-  }, [classData.id]);
+  }, [classData?.id]);
 
   useEffect(() => {
     const fetchSubmittedAssignments = async () => {
-      if (!classData || !classData.id || tabIndex !== 2) return;
+      if (!classData || !classData.id) return;
 
       try {
         let submitted = [];
@@ -87,38 +87,74 @@ function DisplayAssignments({ classData }) {
     };
 
     fetchSubmittedAssignments();
-  }, [classData.id, tabIndex, assignments]);
+  }, [classData?.id, assignments]); // Removed tabIndex dependency to avoid unnecessary fetches
 
   useEffect(() => {
     const filterAssignments = () => {
       const today = new Date();
       const startOfWeek = new Date(today);
-      startOfWeek.setDate(today.getDate() - today.getDay());
+      startOfWeek.setDate(today.getDate() - today.getDay()); // Start of current week (Sunday)
       const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(startOfWeek.getDate() + 6);
+      endOfWeek.setDate(startOfWeek.getDate() + 6); // End of current week (Saturday)
 
-      let filtered = assignments.filter((assignment) => {
-        const dueDate = new Date(assignment.dueDate);
+      const submittedIds = new Set(submittedAssignments.map((s) => s.postId));
+      console.log("Submitted IDs:", Array.from(submittedIds));
 
-        if (tabIndex === 2) {
-          return submittedAssignments.some((s) => s.postId === assignment.id);
-        } else {
+      let filtered = [];
+
+      if (tabIndex === 0) {
+        // Assigned: Unsubmitted, not overdue
+        filtered = assignments.filter((assignment) => {
+          const dueDate = assignment.dueDate ? new Date(assignment.dueDate) : null;
+          const isSubmitted = submittedIds.has(assignment.id);
+          const isPastDue = dueDate && dueDate < today;
+
+          if (!dueDate || isSubmitted || isPastDue) return false;
+
           if (weekFilter === "thisWeek") {
             return dueDate >= startOfWeek && dueDate <= endOfWeek;
           } else if (weekFilter === "laterWeek") {
             return dueDate > endOfWeek;
           }
-        }
-        return true;
-      });
+          return false;
+        });
+      } else if (tabIndex === 1) {
+        // Missed: Unsubmitted, overdue
+        filtered = assignments.filter((assignment) => {
+          const dueDate = assignment.dueDate ? new Date(assignment.dueDate) : null;
+          const isSubmitted = submittedIds.has(assignment.id);
+          const isPastDue = dueDate && dueDate < today;
 
-      if (tabIndex === 0) {
-        const submittedIds = new Set(submittedAssignments.map((s) => s.postId));
-        filtered = filtered.filter((assignment) => !submittedIds.has(assignment.id));
+          if (!dueDate || isSubmitted || !isPastDue) return false;
+
+          if (weekFilter === "thisWeek") {
+            return dueDate >= startOfWeek && dueDate < today;
+          } else if (weekFilter === "earlier") {
+            return dueDate < startOfWeek;
+          }
+          return false;
+        });
+      } else if (tabIndex === 2) {
+        // Done: Submitted
+        filtered = assignments.filter((assignment) => {
+          const dueDate = assignment.dueDate ? new Date(assignment.dueDate) : null;
+          const isSubmitted = submittedIds.has(assignment.id);
+
+          if (!isSubmitted) return false;
+
+          if (weekFilter === "thisWeek") {
+            return dueDate && dueDate >= startOfWeek && dueDate <= endOfWeek;
+          } else if (weekFilter === "earlier") {
+            return dueDate && dueDate < startOfWeek;
+          }
+          return false;
+        });
       }
 
+      console.log(`Filtered assignments for tab ${tabIndex} (${weekFilter}):`, filtered);
       setFilteredAssignments(filtered);
     };
+
     filterAssignments();
   }, [assignments, weekFilter, tabIndex, submittedAssignments]);
 
@@ -130,60 +166,69 @@ function DisplayAssignments({ classData }) {
         <Tab label="Done" />
       </Tabs>
 
-      {tabIndex !== 1 && (
-        <div className="assignments-section">
-          <div className="toggle-buttons">
-            <Button variant={weekFilter === "thisWeek" ? "contained" : "outlined"} onClick={() => setWeekFilter("thisWeek")}>
-              This Week
-            </Button>
-            {tabIndex === 0 ? (
-              <Button variant={weekFilter === "laterWeek" ? "contained" : "outlined"} onClick={() => setWeekFilter("laterWeek")}>
-                Later Weeks
-              </Button>
-            ) : (
-              <Button variant={weekFilter === "earlier" ? "contained" : "outlined"} onClick={() => setWeekFilter("earlier")}>
-                Earlier
-              </Button>
-            )}
-          </div>
+      <div className="assignments-section">
+        <div className="toggle-buttons">
+          <Button
+            variant={weekFilter === "thisWeek" ? "contained" : "outlined"}
+            onClick={() => setWeekFilter("thisWeek")}
+          >
+            This Week
+          </Button>
+          <Button
+            variant={weekFilter === "earlier" || weekFilter === "laterWeek" ? "contained" : "outlined"}
+            onClick={() => setWeekFilter(tabIndex === 0 ? "laterWeek" : "earlier")}
+          >
+            {tabIndex === 0 ? "Later Weeks" : "Earlier"}
+          </Button>
+        </div>
 
-          <div className="assignments-list">
-            {filteredAssignments.length > 0 ? (
-              filteredAssignments.map((assignment) => (
-                <Card key={assignment.id} className="assignment-card">
-                  <CardContent>
-                    <div className="assignment-header">
-                      <Avatar src={assignment.senderPhotoURL} alt={assignment.sender} />
-                      <Typography variant="h6">{assignment.sender}</Typography>
-                    </div>
-                    <Typography variant="h6">{assignment.text}</Typography>
-                    <Typography variant="body2">{assignment.description}</Typography>
-                    {tabIndex === 2 && submittedAssignments.some(s => s.postId === assignment.id) ? (
-                      submittedAssignments.filter(s => s.postId === assignment.id).map(sub => {
+        <div className="assignments-list">
+          {filteredAssignments.length > 0 ? (
+            filteredAssignments.map((assignment) => (
+              <Card key={assignment.id} className="assignment-card">
+                <CardContent>
+                  <div className="assignment-header">
+                    <Avatar src={assignment.senderPhotoURL} alt={assignment.sender} />
+                    <Typography variant="h6">{assignment.sender}</Typography>
+                  </div>
+                  <Typography variant="h6">{assignment.text}</Typography>
+                  <Typography variant="body2">{assignment.description}</Typography>
+                  {tabIndex === 2 && submittedAssignments.some((s) => s.postId === assignment.id) ? (
+                    submittedAssignments
+                      .filter((s) => s.postId === assignment.id)
+                      .map((sub) => {
                         const dueDate = new Date(assignment.dueDate);
                         const submittedDate = new Date(sub.timestamp.seconds * 1000);
                         const diffMs = dueDate - submittedDate;
                         const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-                        const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const diffHours = Math.floor(
+                          (diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+                        );
                         const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
                         return (
                           <Typography key={sub.id} variant="caption" className="success-text">
-                            <CheckCircleOutline style={{ color: "green" }} /> Successfully Submitted {diffDays} days, {diffHours} hours, and {diffMinutes} minutes before due date.
+                            <CheckCircleOutline style={{ color: "green" }} /> Successfully Submitted{" "}
+                            {diffDays} days, {diffHours} hours, and {diffMinutes} minutes before due date.
                           </Typography>
                         );
                       })
-                    ) : (
-                      <Typography variant="caption">Due: {new Date(assignment.dueDate).toLocaleString()}</Typography>
-                    )}
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <Typography>No assignments found.</Typography>
-            )}
-          </div>
+                  ) : tabIndex === 1 ? (
+                    <Typography variant="caption" className="overdue-text">
+                      Overdue: {new Date(assignment.dueDate).toLocaleString()}
+                    </Typography>
+                  ) : (
+                    <Typography variant="caption">
+                      Due: {new Date(assignment.dueDate).toLocaleString()}
+                    </Typography>
+                  )}
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <Typography>No assignments found.</Typography>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

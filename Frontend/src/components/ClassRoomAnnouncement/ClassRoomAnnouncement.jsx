@@ -163,13 +163,17 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
 
   return (
     <div>
-      {announcement.map((item) => (
-        <div className="amt" key={item.id}>
-          <div className="amt__Cnt">
-            <div className="amt__top">
-              <Avatar src={item.senderPhotoURL} alt={item.sender} />
-              <div>{item.sender}</div>
-              {/* <IconButton
+      {announcement.map((item) => {
+        const currentDate = new Date();
+        const dueDate = item.dueDate ? new Date(item.dueDate) : null;
+        const isOverdue = dueDate && currentDate > dueDate;
+        return (
+          <div className="amt" key={item.id}>
+            <div className="amt__Cnt">
+              <div className="amt__top">
+                <Avatar src={item.senderPhotoURL} alt={item.sender} />
+                <div>{item.sender}</div>
+                {/* <IconButton
                 aria-controls="announcement-menu"
                 aria-haspopup="true"
                 onClick={(e) => handleMenuOpen(e, item)}
@@ -177,90 +181,98 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
                 <MoreVertIcon />
               </IconButton> */}
 
-              {item.sender === loggedInMail && (
-                <IconButton
-                  aria-controls="announcement-menu"
-                  aria-haspopup="true"
-                  onClick={(e) => handleMenuOpen(e, item)}
-                >
-                  <MoreVertIcon />
-                </IconButton>
-              )}
-            </div>
-            <p className="amt__txt">{item.text}</p>
-            {item.fileUrls && item.fileUrls.length > 0 && (
-              <div className="amt__files">
-                {item.fileUrls.map((fileUrl, index) => {
-                  const fileExtension = fileUrl.split(".").pop().toLowerCase();
-                  const filePath = `http://localhost:8000/${fileUrl}`;
-                  if (["jpg", "jpeg", "png"].includes(fileExtension)) {
-                    return (
-                      <img
-                        key={index}
-                        className="amt__img"
-                        src={filePath}
-                        alt={`Announcement file ${index}`}
-                      />
-                    );
-                  } else if (fileExtension === "pdf") {
-                    return (
-                      <div key={index} className="amt__pdf">
-                        <a
-                          href={filePath}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <PictureAsPdfIcon
-                            style={{ color: "red", fontSize: "5rem" }}
-                          />
-                        </a>
-                      </div>
-                    );
-                  } else {
-                    return null;
-                  }
-                })}
-              </div>
-            )}
-            {isAdmin && item.sender === loggedInMail && (
-              <button
-                className="view-submissions-btn"
-                onClick={() =>
-                  navigate(`/submissions/${classData.id}/${item.id}`)
-                }
-              >
-                View Submitted Assignments
-              </button>
-            )}
-
-            {isAdmin && item.sender !== loggedInMail && <></>}
-
-            {!isAdmin && item.sender !== loggedInMail && (
-              <div className="amt__upload">
-                {submittedAssignments[item.id] ? (
-                  <p className="submission-success">
-                    ✅ Successfully Submitted
-                  </p>
-                ) : (
-                  <>
-                    <input type="file" multiple onChange={handleFileChange} />
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleUploadAssignment(item.id)}
-                    >
-                      Upload Assignment
-                    </Button>
-                  </>
+                {item.sender === loggedInMail && (
+                  <IconButton
+                    aria-controls="announcement-menu"
+                    aria-haspopup="true"
+                    onClick={(e) => handleMenuOpen(e, item)}
+                  >
+                    <MoreVertIcon />
+                  </IconButton>
                 )}
               </div>
-            )}
-            <div className="amt__time">
-              {new Date(item.timestamp?.toDate()).toLocaleString()}
+              <p className="amt__txt">{item.text}</p>
+              {item.fileUrls && item.fileUrls.length > 0 && (
+                <div className="amt__files">
+                  {item.fileUrls.map((fileUrl, index) => {
+                    const fileExtension = fileUrl
+                      .split(".")
+                      .pop()
+                      .toLowerCase();
+                    const filePath = `http://localhost:8000/${fileUrl}`;
+                    if (["jpg", "jpeg", "png"].includes(fileExtension)) {
+                      return (
+                        <img
+                          key={index}
+                          className="amt__img"
+                          src={filePath}
+                          alt={`Announcement file ${index}`}
+                        />
+                      );
+                    } else if (fileExtension === "pdf") {
+                      return (
+                        <div key={index} className="amt__pdf">
+                          <a
+                            href={filePath}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <PictureAsPdfIcon
+                              style={{ color: "red", fontSize: "5rem" }}
+                            />
+                          </a>
+                        </div>
+                      );
+                    } else {
+                      return null;
+                    }
+                  })}
+                </div>
+              )}
+              {isAdmin && item.sender === loggedInMail && (
+                <button
+                  className="view-submissions-btn"
+                  onClick={() =>
+                    navigate(`/submissions/${classData.id}/${item.id}`)
+                  }
+                >
+                  View Submitted Assignments
+                </button>
+              )}
+
+              {isAdmin && item.sender !== loggedInMail && <></>}
+
+              {!isAdmin && item.sender !== loggedInMail && (
+                <div className="amt__upload">
+                  {submittedAssignments[item.id] ? (
+                    <p className="submission-success">
+                      ✅ Successfully Submitted
+                    </p>
+                  ) : isOverdue ? (
+                    <p className="overdue-message">
+                      ⏰ Cannot submit. The due date has passed.
+                    </p>
+                  ) : (
+                    <>
+                      <input type="file" multiple onChange={handleFileChange} />
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleUploadAssignment(item.id)}
+                      >
+                        Upload Assignment
+                      </Button>
+                    </>
+                  )}
+                </div>
+              )}
+              <div className="amt__time">
+                {new Date(item.timestamp?.toDate()).toLocaleString()}
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
       <Menu
         id="announcement-menu"
         anchorEl={anchorEl}
