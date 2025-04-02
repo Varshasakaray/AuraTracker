@@ -11,7 +11,7 @@ import timetableRouter from './routes/timetableRoutes.js';
 import multer from "multer";
 import path from 'path';
 import { fileURLToPath } from 'url';
-
+import sendEmail from './utils/sendEmail.js';
 // ES module workaround for __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -72,6 +72,26 @@ const storage = multer.diskStorage({
   }
 });
 
+
+app.post("/send-badge-email", async (req, res) => {
+  const { email, badgeName } = req.body;
+
+  if (!email || !badgeName) {
+      return res.status(400).json({ message: "Email and badge name are required" });
+  }
+
+  const messageContent = `<h3>Congratulations!</h3>
+      <p>You have earned the <strong>${badgeName}</strong> badge! 🎉</p>
+      <p>Keep up the great work and continue earning more rewards.</p>`;
+
+  try {
+      await sendEmail(email, messageContent);
+      res.status(200).json({ message: "Badge email sent successfully" });
+  } catch (error) {
+      console.error("Error sending badge email:", error);
+      res.status(500).json({ message: "Failed to send badge email" });
+  }
+});
 
 
 // app.post('/api/v1/upload', (req, res) => {

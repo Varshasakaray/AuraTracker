@@ -115,7 +115,6 @@ export default function PrivateNavbar() {
       .reverse()
       .find((badge) => points >= badge.points);
   
-    // Retrieve previously earned badges from local storage
     const userData = JSON.parse(localStorage.getItem("userInfo")) || {};
     const storedBadges = userData.badges || [];
   
@@ -123,7 +122,7 @@ export default function PrivateNavbar() {
       setLatestBadge(earnedBadge);
       setBadgePopupVisible(true);
   
-      // Ensure we keep old badges and add new one
+      // Update local storage and state
       const updatedBadges = [...new Set([...storedBadges, earnedBadge.name])];
       setBadges(updatedBadges);
       userData.badges = updatedBadges;
@@ -135,11 +134,19 @@ export default function PrivateNavbar() {
         await axios.put(`${BASE_URL}/users/update-badges`, { badges: updatedBadges }, {
           headers: { Authorization: `Bearer ${token}` }
         });
+  
+        // Send email notification
+        await axios.post(`${BASE_URL}/send-badge-email`, {
+          email: userData.email, // Ensure email is available in localStorage
+          badgeName: earnedBadge.name,
+        });
+  
       } catch (error) {
-        console.error("Error updating badges in MongoDB:", error);
+        console.error("Error updating badges or sending email:", error);
       }
     }
   };
+  
 
   // Ensure latest badge persists on refresh
 const fetchLatestBadge = async () => {
