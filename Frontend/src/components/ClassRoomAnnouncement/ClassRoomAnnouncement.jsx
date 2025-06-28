@@ -18,7 +18,6 @@ import trailBlind from "../../assets/trailBlind.jpg";
 import trailBlozer from "../../assets/trailBlozer.jpg";
 import masterMind from "../../assets/masterMind.jpg";
 
-
 const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
   const navigate = useNavigate();
   const { loggedInMail } = useLocalContext();
@@ -90,17 +89,17 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
   };
 
   const updateAuraPointsAndBadge = async () => {
-     const badgeThresholds = [
-        { points: 50, name: "Newbie", image: badgeImage },
-        { points: 100, name: "Striver", image: striver },
-        { points: 150, name: "Achiever", image: risingStar },
-        { points: 200, name: "Expert", image: paceseter },
-        { points: 500, name: "Master", image: legend },
-        { points: 1000, name: "Trailblazer", image: trailBlind },
-        { points: 2000, name: "Pioneer", image: trailBlozer },
-        { points: 5000, name: "Mastermind", image: masterMind },
-      ];
-    
+    const badgeThresholds = [
+      { points: 50, name: "Newbie", image: badgeImage },
+      { points: 100, name: "Striver", image: striver },
+      { points: 150, name: "Achiever", image: risingStar },
+      { points: 200, name: "Expert", image: paceseter },
+      { points: 500, name: "Master", image: legend },
+      { points: 1000, name: "Trailblazer", image: trailBlind },
+      { points: 2000, name: "Pioneer", image: trailBlozer },
+      { points: 5000, name: "Mastermind", image: masterMind },
+    ];
+
     const token = localStorage.getItem("token");
     try {
       if (!token) {
@@ -120,6 +119,15 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
           },
         }
       );
+
+      // Add AuraPoints notification
+      const user = JSON.parse(localStorage.getItem("userInfo"));
+      const notifKey = user
+        ? `auraNotifications_${user.email}`
+        : "auraNotifications_guest";
+      const notifications = JSON.parse(localStorage.getItem(notifKey) || "[]");
+      notifications.unshift(`✅ Assignment submission complete! +10 Aura points.`);
+      localStorage.setItem(notifKey, JSON.stringify(notifications));
       alert("You have earned 10 Aura Points on submission!");
 
       // 2. Get updated user profile
@@ -164,6 +172,16 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
           email: storedUser.email,
           badgeName: earnedBadge.name,
         });
+
+        // Add badge notification
+        const user = JSON.parse(localStorage.getItem("userInfo"));
+        const notifKey = user
+          ? `auraNotifications_${user.email}`
+          : "auraNotifications_guest";
+        const stored = JSON.parse(localStorage.getItem(notifKey) || "[]");
+        stored.unshift(`🎉 You earned a new badge: ${earnedBadge.name}!`);
+        localStorage.setItem(notifKey, JSON.stringify(stored));
+        setNotifications(stored);
 
         alert(`🏅 You just unlocked a badge: ${earnedBadge.name}`);
       }

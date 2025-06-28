@@ -68,7 +68,6 @@ const QuizMission = () => {
       setFeedback("🎉 Correct!");
 
       try {
-        
         if (!token) {
           console.error("No token found in localStorage");
           return;
@@ -87,7 +86,16 @@ const QuizMission = () => {
           }
         );
 
-        
+        // Add AuraPoints notification
+        const user = JSON.parse(localStorage.getItem("userInfo"));
+        const notifKey = user
+          ? `auraNotifications_${user.email}`
+          : "auraNotifications_guest";
+        const notifications = JSON.parse(
+          localStorage.getItem(notifKey) || "[]"
+        );
+        notifications.unshift(`✅ Daily-Challenge complete! +10 Aura points.`);
+        localStorage.setItem(notifKey, JSON.stringify(notifications));
 
         // 2. Get updated user profile
         const { data: userData } = await axios.get(
@@ -108,7 +116,7 @@ const QuizMission = () => {
         storedUser.badges = serverBadges;
         localStorage.setItem("userInfo", JSON.stringify(storedUser));
 
-        // 3. Get updated Badge 
+        // 3. Get updated Badge
         const earnedBadge = badgeThresholds
           .slice()
           .reverse()
@@ -137,7 +145,16 @@ const QuizMission = () => {
             badgeName: earnedBadge.name,
           });
 
-          
+          // Add badge notification
+          const user = JSON.parse(localStorage.getItem("userInfo"));
+          const notifKey = user
+            ? `auraNotifications_${user.email}`
+            : "auraNotifications_guest";
+          const stored = JSON.parse(localStorage.getItem(notifKey) || "[]");
+          stored.unshift(`🎉 You earned a new badge: ${earnedBadge.name}!`);
+          localStorage.setItem(notifKey, JSON.stringify(stored));
+          setNotifications(stored);
+
           alert(`🏅 You just unlocked a badge: ${earnedBadge.name}`);
         }
       } catch (err) {
