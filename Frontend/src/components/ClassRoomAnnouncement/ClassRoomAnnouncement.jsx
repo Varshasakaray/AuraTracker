@@ -7,6 +7,17 @@ import db from "../lib/Firebase";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import { useLocalContext } from "../../context/context";
 import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../../utils/url";
+
+import badgeImage from "../../assets/newBie.jpg";
+import striver from "../../assets/striver.jpg";
+import risingStar from "../../assets/risingStar.jpg";
+import paceseter from "../../assets/paceseter.jpg";
+import legend from "../../assets/legend.jpg";
+import trailBlind from "../../assets/trailBlind.jpg";
+import trailBlozer from "../../assets/trailBlozer.jpg";
+import masterMind from "../../assets/masterMind.jpg";
+
 
 const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
   const navigate = useNavigate();
@@ -78,6 +89,89 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
     }
   };
 
+  const updateAuraPointsAndBadge = async () => {
+     const badgeThresholds = [
+        { points: 50, name: "Newbie", image: badgeImage },
+        { points: 100, name: "Striver", image: striver },
+        { points: 150, name: "Achiever", image: risingStar },
+        { points: 200, name: "Expert", image: paceseter },
+        { points: 500, name: "Master", image: legend },
+        { points: 1000, name: "Trailblazer", image: trailBlind },
+        { points: 2000, name: "Pioneer", image: trailBlozer },
+        { points: 5000, name: "Mastermind", image: masterMind },
+      ];
+    
+    const token = localStorage.getItem("token");
+    try {
+      if (!token) {
+        console.error("No token found in localStorage");
+        return;
+      }
+
+      // 1. Get updated Aura points
+      await axios.post(
+        `${BASE_URL}/users/update-points`,
+        {
+          pointsToAdd: 10,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      alert("You have earned 10 Aura Points on submission!");
+
+      // 2. Get updated user profile
+      const { data: userData } = await axios.get(`${BASE_URL}/users/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const points = userData.auraPoints || 0;
+      const serverBadges = userData.badges || [];
+
+      // Update localStorage
+      const storedUser = JSON.parse(localStorage.getItem("userInfo")) || {};
+      storedUser.auraPoints = points;
+      storedUser.badges = serverBadges;
+      localStorage.setItem("userInfo", JSON.stringify(storedUser));
+
+      // 3. Get updated Badge
+      const earnedBadge = badgeThresholds
+        .slice()
+        .reverse()
+        .find(
+          (badge) =>
+            points >= badge.points && !serverBadges.includes(badge.name)
+        );
+
+      if (earnedBadge) {
+        const updatedBadges = [...new Set([...serverBadges, earnedBadge.name])];
+
+        // Save to MongoDB
+        await axios.put(
+          `${BASE_URL}/users/update-badges`,
+          { badges: updatedBadges },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        // Optional: Send badge email
+        await axios.post(`${BASE_URL}/send-badge-email`, {
+          email: storedUser.email,
+          badgeName: earnedBadge.name,
+        });
+
+        alert(`🏅 You just unlocked a badge: ${earnedBadge.name}`);
+      }
+    } catch (err) {
+      console.error("Aura update or badge check failed:", err);
+    }
+  };
+
   const handleFileChange = (event) => {
     const files = Array.from(event.target.files);
     setSelectedFiles(files);
@@ -129,6 +223,9 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
 
       setSelectedFiles([]);
       alert("Assignment uploaded successfully!");
+
+      // Update Aura points and badge
+      updateAuraPointsAndBadge();
     } catch (error) {
       console.error("Error uploading assignment:", error);
       alert("Failed to upload assignment. Please try again.");

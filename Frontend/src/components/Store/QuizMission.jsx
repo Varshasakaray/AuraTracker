@@ -87,6 +87,8 @@ const QuizMission = () => {
           }
         );
 
+        
+
         // 2. Get updated user profile
         const { data: userData } = await axios.get(
           `${BASE_URL}/users/profile`,
