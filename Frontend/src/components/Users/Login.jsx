@@ -39,11 +39,17 @@ const LoginForm = () => {
             //http request
             mutateAsync(values)
             .then((data)=>{
-                //dispatch
                 // console.log(data);
+                
+                //dispatch
                 dispatch(loginAction(data));
                 //save the user into localStorage
                 localStorage.setItem("userInfo",JSON.stringify(data));
+            
+                // save the token
+                console.log("Saving token in localStorage",data.token);
+                localStorage.setItem("token", data.token);
+
             }).catch(e=>console.log(e));
         }
     });

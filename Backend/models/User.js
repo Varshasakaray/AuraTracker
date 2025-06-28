@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true },
@@ -9,9 +9,10 @@ const userSchema = new mongoose.Schema({
   DOB: { type: Date, required: true },
   course: { type: String, required: true },
   regnum: { type: String, required: true, unique: true },
-  auraPoints:{ type:Number, default:0},
-  lastCheckIn:{type:Date,default:null},
-  badges:{type:[String],default:[]}
+  auraPoints: { type: Number, default: 0 },
+  lastCheckIn: { type: Date, default: null },
+  badges: { type: [String], default: [] },
+  
 });
 
-export default mongoose.model('User', userSchema);
+export default mongoose.model("User", userSchema);

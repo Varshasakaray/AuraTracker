@@ -17,4 +17,6 @@ userRouter.post('/api/v1/users/daily-check', isAuthenticated, usersController.da
 userRouter.post('/api/v1/users/update-points',isAuthenticated, usersController.updateAuraPoints);
 
 userRouter.put('/api/v1/users/update-badges',isAuthenticated, usersController.updateBadges);
+
+
 export default userRouter;

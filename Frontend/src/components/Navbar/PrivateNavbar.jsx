@@ -81,10 +81,12 @@ export default function PrivateNavbar() {
   
         // Update local storage for consistency
         const userData = JSON.parse(localStorage.getItem("userInfo")) || {};
-        userData.auraPoints = points;
-        userData.badges = serverBadges;
-        localStorage.setItem("userInfo", JSON.stringify(userData));
-  
+
+        if(userData){
+          userData.auraPoints = points;
+          userData.badges = serverBadges;
+          localStorage.setItem("userInfo", JSON.stringify(userData));
+        }        
         updateBadge(points, serverBadges);
       } catch (error) {
         console.error("Error fetching Aura Points:", error);
