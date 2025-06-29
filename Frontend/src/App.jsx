@@ -68,6 +68,26 @@ function App() {
   }, [loggedInMail]);
   console.log(joinedClasses);
 
+  // Function to save check-in mission completion to DB
+  const saveCheckInMissionCompletion = async () => {
+    if (!token || !user?.email) return;
+    try {
+      await axios.post(
+        `${BASE_URL}/missions/complete`,
+        {
+          missionKey: "checkin_done",
+          userEmail: user.email,
+          date: new Date().toISOString().slice(0, 10),
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+    } catch (err) {
+      console.error("Failed to save check-in mission completion:", err);
+    }
+  };
+
   useEffect(() => {
     const checkInUser = async () => {
       if (!token || !user?.email) return;
@@ -111,6 +131,9 @@ function App() {
             { headers: { Authorization: `Bearer ${token}` } }
           );
         }
+
+        // Save check-in mission completion to DB
+        await saveCheckInMissionCompletion();
       } catch (error) {
         console.error(
           "Daily check-in failed:",
@@ -120,7 +143,7 @@ function App() {
     };
 
     checkInUser();
-  }, [token,user]);
+  }, [token, user]);
 
   return (
     <BrowserRouter>

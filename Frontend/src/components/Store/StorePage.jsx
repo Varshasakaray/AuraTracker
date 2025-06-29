@@ -1,35 +1,43 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { missions } from "./Missions";
+import axios from "axios";
+import { BASE_URL } from "../../utils/url";
 
 const StorePage = () => {
   const navigate = useNavigate();
-  const [completedMissions, setCompletedMissions] = useState({});
+  const [completedMissions, setCompletedMissions] = useState([]);
+  const user = JSON.parse(localStorage.getItem("userInfo"));
+  const token = localStorage.getItem("token");
+  const today = new Date().toISOString().slice(0, 10);
 
-  // Check mission completion
-  const checkCompletedMissions = () => {
-    const user = JSON.parse(localStorage.getItem("userInfo"));
-    const userKey = user?.email || "guest";
-    const today = new Date().toISOString().slice(0, 10);
-    const status = {};
-    missions.forEach((mission) => {
-      const key = `${mission.key}_${userKey}_${today}`;
-      status[mission.key] = localStorage.getItem(key) === "true";
-    });
-    setCompletedMissions(status);
+  const fetchCompletedMissions = async () => {
+    if (!user || !user.email) {
+      setCompletedMissions([]);
+      return;
+    }
+    try {
+      const { data } = await axios.get(
+        `${BASE_URL}/missions/completed?user=${user.email}&date=${today}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setCompletedMissions(data);
+    } catch (err) {
+      console.error("Failed to fetch completed missions:", err);
+      setCompletedMissions([]);
+    }
   };
 
   useEffect(() => {
-    checkCompletedMissions(); // Run on mount
-
-    // Re-run on page focus
-    window.addEventListener("focus", checkCompletedMissions);
-    return () => window.removeEventListener("focus", checkCompletedMissions);
+    fetchCompletedMissions();
+    window.addEventListener("focus", fetchCompletedMissions);
+    return () => window.removeEventListener("focus", fetchCompletedMissions);
   }, []);
 
   const handleMissionClick = (path) => {
     navigate(path);
   };
+
 
   return (
     <div className="bg-gray-100 min-h-screen">
@@ -50,7 +58,7 @@ const StorePage = () => {
             <p className="text-yellow-500 font-bold text-2xl mt-2">
               {mission.points}
             </p>
-            {completedMissions[mission.key] ? (
+            {completedMissions.includes(mission.key) ? (
               <button
                 className="mt-4 bg-green-500 text-white px-4 py-2 rounded-xl cursor-default"
                 disabled

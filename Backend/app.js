@@ -9,6 +9,7 @@ import attendanceRouter from './routes/attendanceRouter.js';
 import examRouter from './routes/examRouter.js';
 import timetableRouter from './routes/timetableRoutes.js';
 import notificationRouter from './routes/notificationRoutes.js';
+import missionRouter from './routes/missionRoutes.js';
 import multer from "multer";
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -105,7 +106,7 @@ app.use("/",attendanceRouter);
 app.use("/",examRouter);
 app.use('/',timetableRouter); 
 app.use("/",notificationRouter);
-
+app.use("/",missionRouter);
 app.use(errorHandler);
 
 

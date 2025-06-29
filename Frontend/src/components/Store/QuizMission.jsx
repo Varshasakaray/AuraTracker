@@ -61,6 +61,19 @@ const QuizMission = () => {
     }
   }, [quizStorageKey]);
 
+   const saveMissionCompletion = async () => {
+    if (!user || !user.email) return;
+    try {
+      await axios.post(
+        `${BASE_URL}/missions/complete`,
+        { missionKey: "daily_challenge_done", userEmail: user.email, date: today },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    } catch (err) {
+      console.error("Mission save failed:", err);
+    }
+  };
+
   const check = async () => {
     localStorage.setItem(completionKey, "true");
 
@@ -153,6 +166,8 @@ const QuizMission = () => {
 
           alert(`🏅 You just unlocked a badge: ${earnedBadge.name}`);
         }
+
+        await saveMissionCompletion();
       } catch (err) {
         console.error("Aura update or badge check failed:", err);
       }
