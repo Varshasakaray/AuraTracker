@@ -70,7 +70,7 @@ function App() {
 
   useEffect(() => {
     const checkInUser = async () => {
-      if (!token) return;
+      if (!token || !user?.email) return;
 
       const today = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
       const key = `checkin_done_${user?.email || "guest"}_${today}`;
@@ -104,16 +104,12 @@ function App() {
           // Mark check-in in localStorage
           localStorage.setItem(key, "true");
 
-          // Store notification
-          const user = JSON.parse(localStorage.getItem("userInfo"));
-          const notifKey = user
-            ? `auraNotifications_${user.email}`
-            : "auraNotifications_guest";
-          const notifications = JSON.parse(
-            localStorage.getItem(notifKey) || "[]"
+          // Save notification to DB
+          await axios.post(
+            `${BASE_URL}/notifications`,
+            { message: "✅ Daily check-in complete! +1 Aura point." },
+            { headers: { Authorization: `Bearer ${token}` } }
           );
-          notifications.unshift(`✅ Daily check-in complete! +1 Aura point.`);
-          localStorage.setItem(notifKey, JSON.stringify(notifications));
         }
       } catch (error) {
         console.error(
@@ -124,7 +120,7 @@ function App() {
     };
 
     checkInUser();
-  }, [token]);
+  }, [token,user]);
 
   return (
     <BrowserRouter>

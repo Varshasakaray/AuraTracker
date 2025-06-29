@@ -86,16 +86,14 @@ const QuizMission = () => {
           }
         );
 
-        // Add AuraPoints notification
-        const user = JSON.parse(localStorage.getItem("userInfo"));
-        const notifKey = user
-          ? `auraNotifications_${user.email}`
-          : "auraNotifications_guest";
-        const notifications = JSON.parse(
-          localStorage.getItem(notifKey) || "[]"
+        // Save notification to DB
+        await axios.post(
+          `${BASE_URL}/notifications`,
+          { message: "✅ Daily-Challenge complete! +10 Aura points." },
+          { headers: { Authorization: `Bearer ${token}` } }
         );
-        notifications.unshift(`✅ Daily-Challenge complete! +10 Aura points.`);
-        localStorage.setItem(notifKey, JSON.stringify(notifications));
+
+        alert(" ✅ Daily-Challenge complete! +10 Aura points");
 
         // 2. Get updated user profile
         const { data: userData } = await axios.get(
@@ -145,15 +143,13 @@ const QuizMission = () => {
             badgeName: earnedBadge.name,
           });
 
-          // Add badge notification
-          const user = JSON.parse(localStorage.getItem("userInfo"));
-          const notifKey = user
-            ? `auraNotifications_${user.email}`
-            : "auraNotifications_guest";
-          const stored = JSON.parse(localStorage.getItem(notifKey) || "[]");
-          stored.unshift(`🎉 You earned a new badge: ${earnedBadge.name}!`);
-          localStorage.setItem(notifKey, JSON.stringify(stored));
-          setNotifications(stored);
+          
+          // Save notification to DB
+          await axios.post(
+            `${BASE_URL}/notifications`,
+            { message: `🎉 You earned a new badge: ${earnedBadge.name}!` },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
 
           alert(`🏅 You just unlocked a badge: ${earnedBadge.name}`);
         }

@@ -120,15 +120,14 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
         }
       );
 
-      // Add AuraPoints notification
-      const user = JSON.parse(localStorage.getItem("userInfo"));
-      const notifKey = user
-        ? `auraNotifications_${user.email}`
-        : "auraNotifications_guest";
-      const notifications = JSON.parse(localStorage.getItem(notifKey) || "[]");
-      notifications.unshift(`✅ Assignment submission complete! +10 Aura points.`);
-      localStorage.setItem(notifKey, JSON.stringify(notifications));
-      alert("You have earned 10 Aura Points on submission!");
+      alert("✅ Assignment submission complete! +10 Aura points.");
+
+      // Save notification to DB
+      await axios.post(
+        `${BASE_URL}/notifications`,
+        { message: "✅ Assignment submission complete! +10 Aura points." },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
       // 2. Get updated user profile
       const { data: userData } = await axios.get(`${BASE_URL}/users/profile`, {
@@ -173,15 +172,13 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
           badgeName: earnedBadge.name,
         });
 
-        // Add badge notification
-        const user = JSON.parse(localStorage.getItem("userInfo"));
-        const notifKey = user
-          ? `auraNotifications_${user.email}`
-          : "auraNotifications_guest";
-        const stored = JSON.parse(localStorage.getItem(notifKey) || "[]");
-        stored.unshift(`🎉 You earned a new badge: ${earnedBadge.name}!`);
-        localStorage.setItem(notifKey, JSON.stringify(stored));
-        setNotifications(stored);
+        // Save notification to DB
+      await axios.post(
+        `${BASE_URL}/notifications`,
+        { message: `🎉 You earned a new badge: ${earnedBadge.name}!` },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
 
         alert(`🏅 You just unlocked a badge: ${earnedBadge.name}`);
       }

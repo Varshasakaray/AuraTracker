@@ -19,6 +19,7 @@ import trailBlind from "../../assets/trailBlind.jpg";
 import trailBlozer from "../../assets/trailBlozer.jpg";
 import masterMind from "../../assets/masterMind.jpg";
 import { IoNotificationsOutline } from "react-icons/io5";
+import { use } from "react";
 
 const badgeThresholds = [
   { points: 50, name: "Newbie", image: badgeImage },
@@ -183,28 +184,42 @@ export default function PrivateNavbar() {
     }
   };
 
+  
+
+
+   // Fetch notifications from DB
+  const fetchNotifications = async () => {
+    const token = getUserFromStorage();
+    if (!token) return;
+    try {
+      const response = await axios.get(`${BASE_URL}/notifications`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setNotifications(response.data);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
+
+  // Clear notifications in DB
+  const clearNotificationsHandler = async () => {
+    const token = getUserFromStorage();
+    if (!token) return;
+    try {
+      await axios.delete(`${BASE_URL}/notifications`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setNotifications([]);
+    } catch (error) {
+      console.error("Failed to clear notifications:", error);
+    }
+  };
+
+
   useEffect(() => {
     fetchLatestBadge();
+    fetchNotifications();
   }, []);
-
-  // Load notifications from localStorage on mount
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("userInfo"));
-    const notifKey = user
-      ? `auraNotifications_${user.email}`
-      : "auraNotifications_guest";
-    const stored = JSON.parse(localStorage.getItem(notifKey) || "[]");
-    setNotifications(stored);
-  }, []);
-
-  const clearNotificationsHandler = () => {
-    const user = JSON.parse(localStorage.getItem("userInfo"));
-    const notifKey = user
-      ? `auraNotifications_${user.email}`
-      : "auraNotifications_guest";
-    setNotifications([]);
-    localStorage.setItem(notifKey, "[]");
-  };
 
   return (
     <div>
@@ -346,6 +361,7 @@ export default function PrivateNavbar() {
                   </Fragment>
 
                   {/* Notification Bell */}
+                  
                   <div className="relative">
                     <button
                       className="relative"
@@ -358,7 +374,7 @@ export default function PrivateNavbar() {
                       )}
                     </button>
                     {showNotifications && (
-                      <div className="absolute right-0 mt-2 w-80 bg-white shadow-lg rounded-md z-50">
+                      <div className="absolute right-0 mt-2 w-80 bg-white shadow-lg rounded-md z-50 max-h-96 overflow-y-auto">
                         <div className="p-4">
                           <h4 className="font-bold mb-2">Notifications</h4>
                           {notifications.length === 0 ? (
@@ -368,8 +384,13 @@ export default function PrivateNavbar() {
                           ) : (
                             <ul>
                               {notifications.map((note, idx) => (
-                                <li key={idx} className="mb-2 text-sm">
-                                  {note}
+                                <li key={note._id || idx} className="mb-2 text-sm border-b pb-2 last:border-b-0">
+                                  {note.message}
+                                  <span className="block text-xs text-gray-400 mt-1">
+                                    {note.createdAt
+                                      ? new Date(note.createdAt).toLocaleString()
+                                      : ""}
+                                  </span>
                                 </li>
                               ))}
                             </ul>
@@ -377,6 +398,7 @@ export default function PrivateNavbar() {
                           <button
                             className="mt-2 text-xs text-blue-600"
                             onClick={clearNotificationsHandler}
+                            disabled={notifications.length === 0}
                           >
                             Clear All
                           </button>

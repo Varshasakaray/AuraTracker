@@ -8,6 +8,7 @@ import Announcement from './models/Announcement.js';
 import attendanceRouter from './routes/attendanceRouter.js';
 import examRouter from './routes/examRouter.js';
 import timetableRouter from './routes/timetableRoutes.js';
+import notificationRouter from './routes/notificationRoutes.js';
 import multer from "multer";
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -103,6 +104,8 @@ app.use("/",taskRouter);
 app.use("/",attendanceRouter);
 app.use("/",examRouter);
 app.use('/',timetableRouter); 
+app.use("/",notificationRouter);
+
 app.use(errorHandler);
 
 
@@ -110,5 +113,5 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 8000;
 
 app.listen(PORT, () => {
-  console.log(`listening on port ${PORT}`); // <-- Corrected string interpolation
+  console.log(`listening on port ${PORT}`); 
 });
