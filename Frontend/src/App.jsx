@@ -29,6 +29,7 @@ import axios from "axios";
 import SubmittedAssignments from "./components/SubmittedAssignments/SubmittedAssignments";
 import DisplayAssignments from "./components/DueDate/DisplayAssignments";
 import QuizMission from "./components/Store/QuizMission";
+import QuizMissionCS from "./components/Store/QuizMissionCS";
 
 function App() {
   const token = getUserFromStorage();
@@ -90,7 +91,7 @@ function App() {
 
   useEffect(() => {
     const checkInUser = async () => {
-      if (!token || !user?.email) return;
+      if (!user || !token || !user?.email) return;
 
       const today = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
       const key = `checkin_done_${user?.email || "guest"}_${today}`;
@@ -143,7 +144,7 @@ function App() {
     };
 
     checkInUser();
-  }, [token, user]);
+  }, [user]);
 
   return (
     <BrowserRouter>
@@ -396,8 +397,8 @@ function App() {
           />
         ))}
 
-        <Route path="/daily-challenge" element={<QuizMission />} />
-        {/* <Route path="/weekly-challenge" element={<QuizMission />} /> */}
+        <Route path="/daily-math-challenge" element={<QuizMission />} />
+        <Route path="/daily-cs-challenge" element={<QuizMissionCS />} />
       </Routes>
     </BrowserRouter>
   );

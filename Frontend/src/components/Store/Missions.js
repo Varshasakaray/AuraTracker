@@ -7,15 +7,15 @@ export const missions = [
   },
 
   {
-    title: "Complete Daily Challenge",
+    title: "Daily Math Challenge",
     points: "+10",
-    path: "/daily-challenge",
-    key: "daily_challenge_done",
+    path: "/daily-math-challenge",
+    key: "daily_math_challenge_done",
   },
-  // {
-  //   title: "Completing Weekly Premium Challenges",
-  //   points: "+35",
-  //   path: "/weekly-challenge",
-  //   key: "weekly_challenge_done",
-  // },
+  {
+    title: "Daily CS challenge",
+    points: "+20",
+    path: "/daily-cs-challenge",
+    key: "daily_cs_challenge_done",
+  },
 ];

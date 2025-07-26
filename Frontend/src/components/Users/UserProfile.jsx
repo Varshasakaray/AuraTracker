@@ -78,6 +78,7 @@ const UserProfile = () => {
                 className="text-sm font-medium text-gray-700"
               >
                 Email
+                
               </label>
               <input
                 type="email"

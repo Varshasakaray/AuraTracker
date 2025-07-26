@@ -33,7 +33,7 @@ const QuizMission = () => {
   const userKey = user?.email || "guest";
   const today = new Date().toISOString().slice(0, 10);
   const quizStorageKey = `quiz_${userKey}_${today}`;
-  const completionKey = `daily_challenge_done_${userKey}_${today}`;
+  const completionKey = `daily_cs_challenge_done_${userKey}_${today}`;
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("quiz_" + today));
@@ -41,7 +41,7 @@ const QuizMission = () => {
       setQuestion(saved);
     } else {
       axios
-        .get("https://opentdb.com/api.php?amount=1&type=multiple&category=19")
+        .get("https://opentdb.com/api.php?amount=1&type=multiple&category=18")
         .then((res) => {
           const q = res.data.results[0];
           const answers = [q.correct_answer, ...q.incorrect_answers].sort(
@@ -66,7 +66,7 @@ const QuizMission = () => {
     try {
       await axios.post(
         `${BASE_URL}/missions/complete`,
-        { missionKey: "daily_math_challenge_done", userEmail: user.email, date: today },
+        { missionKey: "daily_cs_challenge_done", userEmail: user.email, date: today },
         { headers: { Authorization: `Bearer ${token}` } }
       );
     } catch (err) {
@@ -90,7 +90,7 @@ const QuizMission = () => {
         await axios.post(
           `${BASE_URL}/users/update-points`,
           {
-            pointsToAdd: 10,
+            pointsToAdd: 20,
           },
           {
             headers: {
@@ -102,11 +102,11 @@ const QuizMission = () => {
         // Save notification to DB
         await axios.post(
           `${BASE_URL}/notifications`,
-          { message: "✅ Daily-Challenge complete! +10 Aura points." },
+          { message: "✅ Daily-CS-Challenge complete! +20 Aura points." },
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        alert(" ✅ Daily-Challenge complete! +10 Aura points");
+        alert(" ✅ Daily-CS-Challenge complete! +20 Aura points");
 
         // 2. Get updated user profile
         const { data: userData } = await axios.get(

@@ -390,7 +390,7 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
         anchorEl={anchorEl}
         keepMounted
         open={Boolean(anchorEl)}
-        onClose={handleMenuClose} // Corrected from handleMenu △△Close
+        onClose={handleMenuClose} 
       >
         <MenuItem onClick={handleEdit}>Edit</MenuItem>
         <MenuItem onClick={handleDelete}>Delete</MenuItem>
