@@ -28,15 +28,10 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
   const [submittedAssignments, setSubmittedAssignments] = useState({});
   const isAdmin = loggedInMail === classData?.owner;
 
-  // const handleMenuOpen = (event, announcement) => {
-  //   setAnchorEl(event.currentTarget);
-  //   setSelectedAnnouncement(announcement);
-  // };
+  
   const handleMenuOpen = (event, announcement) => {
-    if (announcement.sender === loggedInMail) {
-      setAnchorEl(event.currentTarget);
-      setSelectedAnnouncement(announcement);
-    }
+    setAnchorEl(event.currentTarget);
+    setSelectedAnnouncement(announcement);
   };
 
   const handleMenuClose = () => {
@@ -173,12 +168,11 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
         });
 
         // Save notification to DB
-      await axios.post(
-        `${BASE_URL}/notifications`,
-        { message: `🎉 You earned a new badge: ${earnedBadge.name}!` },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
+        await axios.post(
+          `${BASE_URL}/notifications`,
+          { message: `🎉 You earned a new badge: ${earnedBadge.name}!` },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
 
         alert(`🏅 You just unlocked a badge: ${earnedBadge.name}`);
       }
@@ -279,21 +273,23 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
         const currentDate = new Date();
         const dueDate = item.dueDate ? new Date(item.dueDate) : null;
         const isOverdue = dueDate && currentDate > dueDate;
+        const admin = classData?.owner;
+        const isAdmin = loggedInMail === admin;
         return (
           <div className="amt" key={item.id}>
             <div className="amt__Cnt">
               <div className="amt__top">
                 <Avatar src={item.senderPhotoURL} alt={item.sender} />
                 <div>{item.sender}</div>
-                {/* <IconButton
-                aria-controls="announcement-menu"
-                aria-haspopup="true"
-                onClick={(e) => handleMenuOpen(e, item)}
-              >
-                <MoreVertIcon />
-              </IconButton> */}
+                <IconButton
+                  aria-controls="announcement-menu"
+                  aria-haspopup="true"
+                  onClick={(e) => handleMenuOpen(e, item)}
+                >
+                  <MoreVertIcon />
+                </IconButton>
 
-                {item.sender === loggedInMail && (
+                {/* {item.sender === loggedInMail  && (
                   <IconButton
                     aria-controls="announcement-menu"
                     aria-haspopup="true"
@@ -301,7 +297,7 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
                   >
                     <MoreVertIcon />
                   </IconButton>
-                )}
+                )} */}
               </div>
               <p className="amt__txt">{item.text}</p>
               {item.fileUrls && item.fileUrls.length > 0 && (
@@ -390,7 +386,7 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
         anchorEl={anchorEl}
         keepMounted
         open={Boolean(anchorEl)}
-        onClose={handleMenuClose} 
+        onClose={handleMenuClose}
       >
         <MenuItem onClick={handleEdit}>Edit</MenuItem>
         <MenuItem onClick={handleDelete}>Delete</MenuItem>

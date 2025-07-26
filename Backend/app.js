@@ -42,12 +42,14 @@ const storage = multer.diskStorage({
     cb(null, path.join(__dirname, 'uploads'));
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
+  const originalName = file.originalname.replace(/\s+/g, '_'); // Replace spaces with underscore
+  cb(null, Date.now() + '-' + originalName);
+}
+
 });
  const upload = multer({storage});
 
-// **GET /api/v1/files** - Fetch all files
+// Fetch all files
  app.get("/api/v1/files", async(req,res) =>{
   try{
     const announcements  = await Announcement.find();
@@ -58,7 +60,7 @@ const storage = multer.diskStorage({
   }
  })
 
- // **POST /api/v1/upload** - Upload a file
+ // Upload a file
  app.post("/api/v1/upload", upload.array("files", 10), async (req, res) => {
   try {
     console.log("Uploaded files:", req.files); // Debug: log the files received

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AlertMessage from "../Alert/AlertMessage";
-import { AiOutlinePlus } from "react-icons/ai";
+import { AiOutlinePlus, AiOutlineUpload } from "react-icons/ai";
 import {
   listSubjectsAPI,
   deleteSubjectAPI,
@@ -15,7 +15,6 @@ const Dashboard = () => {
   const [subjects, setSubjects] = useState([]);
   const [error, setError] = useState(null);
 
-  // Fetch subjects when the component mounts
   useEffect(() => {
     const fetchSubjects = async () => {
       try {
@@ -27,16 +26,15 @@ const Dashboard = () => {
     };
 
     fetchSubjects();
-  }, []); // Empty array to run once when the component mounts
+  }, []);
 
-  // Handle Delete
   const handleDelete = (id) => {
     if (id) {
       deleteSubjectAPI(id)
-        .then((response) => {
-          setSubjects(subjects.filter((subject) => subject._id !== id)); // Update the state after deletion
+        .then(() => {
+          setSubjects(subjects.filter((subject) => subject._id !== id));
         })
-        .catch((error) => {
+        .catch(() => {
           alert("Error deleting subject");
         });
     } else {
@@ -44,75 +42,95 @@ const Dashboard = () => {
     }
   };
 
-  // Handle Edit
   const handleEdit = (subject) => {
     if (!subject || !subject._id) {
       alert("Subject data is missing or invalid.");
       return;
     }
-
-    // Redirect to `/add-subject` with the subject data
     navigate(`/add-subject/${subject._id}`);
   };
 
   const user = JSON.parse(localStorage.getItem("userInfo") || null);
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen flex flex-col">
-      {/* Include the DashboardNavbar here */}
+    <div className="bg-white text-black min-h-screen flex flex-col font-sans">
       <DashboardNavbar user={user} />
 
-      <div className="flex gap-6 pt-16 mx-5 my-5 flex-1">
-        {/* Sidebar */}
-        <aside className="w-64 fixed top-16 left-0 bg-gray-900 p-5">
-          <div className="mt-8">
-            <div className="flex items-center gap-4 border-b pb-4">
-              <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-200">
-                <img src=".src/images/profile-1.jpg" alt="Profile" />
-              </div>
-              <div className="text-sm">
-                <p className="font-semibold">
-                  Hey, <b>{user.username}</b>
-                </p>
-                <small className="text-muted">{user.regnum}</small>
-              </div>
+      <div className="flex gap-6 pt-16 px-6 pb-8 flex-1">
+        <aside className="w-72 bg-gray-100 p-6 rounded-xl shadow-xl">
+          <div className="text-center">
+            <div className="w-28 h-28 mx-auto rounded-full overflow-hidden border-4 border-blue-500">
+              <img
+                src="https://via.placeholder.com/150"
+                alt="Profile"
+                className="object-cover w-full h-full"
+              />
             </div>
-            <div className="mt-6">
-              <h5 className="font-medium">Course</h5>
-              <p>{user.course}</p>
-              <h5 className="font-medium">DOB</h5>
-              <p>{user.DOB}</p>
-              <h5 className="font-medium">Contact</h5>
-              <p>{user.mobileNo}</p>
-              <h5 className="font-medium">Email</h5>
-              <p>{user.email}</p>
+            <h2 className="mt-4 text-xl font-bold">
+              Hey, <span className="text-blue-600">{user.username}</span>
+            </h2>
+            <p className="text-sm text-gray-500">{user.regnum}</p>
+          </div>
+
+          <div className="mt-8 space-y-4 text-sm">
+            <div>
+              <h5 className="font-semibold text-gray-700">Course</h5>
+              <p className="text-gray-600">{user.course}</p>
+            </div>
+            <div>
+              <h5 className="font-semibold text-gray-700">Semester</h5>
+              <p className="text-gray-600">{user.semester}</p>
+            </div>
+            <div>
+              <h5 className="font-semibold text-gray-700">DOB</h5>
+              <p className="text-gray-600">
+                {new Date(user.DOB).toLocaleDateString("en-IN", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </p>
+            </div>
+            <div>
+              <h5 className="font-semibold text-gray-700">Contact</h5>
+              <p className="text-gray-600">{user.mobileNo}</p>
+            </div>
+            <div>
+              <h5 className="font-semibold text-gray-700">Email</h5>
+              <p className="text-gray-600">{user.email}</p>
             </div>
           </div>
         </aside>
 
-        {/* Main Content */}
-        <main className="flex-1 mt-6 pl-72 bg-gray-900">
-          <h1 className="text-2xl font-extrabold">Attendance</h1>
+        <main className="flex-1 bg-white rounded-xl p-6">
+          <h1 className="text-3xl font-bold mb-6">
+            📊 Your Attendance Overview
+          </h1>
 
-          {error && <p className="text-red-500">{error}</p>}
+          {error && <p className="text-red-500 mb-4">{error}</p>}
 
-          <div className="grid grid-cols-5 gap-6 mt-4 text-black">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {subjects.map((subject) => (
               <div
-                key={subject.id}
-                className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-none transition duration-300"
+                key={subject._id}
+                className="bg-white text-black p-6 rounded-2xl shadow-lg hover:shadow-2xl transition duration-300 border"
               >
-                <span className="text-lg bg-blue-500 text-white rounded-full p-2">
-                  Credit: {subject.credit}
-                </span>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm bg-blue-500 text-white px-3 py-1 rounded-full">
+                    {subject.credit} Credits
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    {subject.subjectCode}
+                  </span>
+                </div>
 
-                <h3 className="mt-4 text-lg font-medium">{subject.subject}</h3>
-                <h2 className="mt-2 text-xl font-semibold">
-                  {`${subject.attendedClasses}/${subject.totalClasses}`}
+                <h3 className="mt-4 text-lg font-bold">{subject.subject}</h3>
+                <h2 className="text-xl font-semibold mt-2">
+                  {`${subject.attendedClasses}/${subject.totalClasses}`} Classes
                 </h2>
 
                 <div className="relative mt-4 w-20 h-20 mx-auto">
-                  <svg className="w-full h-full">
+                  <svg className="w-full h-full text-blue-500">
                     <circle
                       cx="38"
                       cy="38"
@@ -121,45 +139,55 @@ const Dashboard = () => {
                       strokeWidth="8"
                       fill="none"
                       strokeDasharray={2 * Math.PI * 36}
-                      strokeDashoffset={2 * Math.PI * 36 * ((100 - (subject.attendedClasses / subject.totalClasses) * 100) / 100)}
+                      strokeDashoffset={
+                        2 *
+                        Math.PI *
+                        36 *
+                        ((100 -
+                          (subject.attendedClasses / subject.totalClasses) *
+                            100) /
+                          100)
+                      }
                     />
                   </svg>
                   <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
-                    <p className="font-bold">{`${((subject.attendedClasses / subject.totalClasses) * 100).toFixed(0)}%`}</p>
+                    <p className="text-lg font-bold">
+                      {(
+                        (subject.attendedClasses / subject.totalClasses) *
+                        100
+                      ).toFixed(0)}
+                      %
+                    </p>
                   </div>
                 </div>
 
-                <div className="flex gap-4 mt-4">
+                <div className="flex gap-3 mt-4 justify-center">
                   <button
-                    key={subject._id}
                     onClick={() => handleEdit(subject)}
-                    className="bg-yellow-500 text-white text-sm  px-4 py-2 rounded-lg shadow-md hover:bg-yellow-600 transition duration-300"
+                    className="bg-yellow-400 hover:bg-yellow-500 text-white text-sm px-4 py-2 rounded-lg shadow"
                   >
-                    Edit
+                    ✏️ Edit
                   </button>
-
                   <button
                     onClick={() => handleDelete(subject._id)}
-                    className="bg-red-500 text-white text-sm px-2 py-2 rounded-lg shadow-md hover:bg-red-600 transition duration-300"
+                    className="bg-red-500 hover:bg-red-600 text-white text-sm px-4 py-2 rounded-lg shadow"
                   >
-                    Delete
+                    🗑️ Delete
                   </button>
                 </div>
 
-                <small className="text-muted block mt-2">Last Updated</small>
+                <p className="text-xs text-center mt-2 text-gray-500">
+                  Last Updated
+                </p>
               </div>
             ))}
 
             <div
-              className="bg-white/50 p-6 rounded-2xl shadow-lg hover:shadow-none transition duration-300 flex flex-col items-center justify-center cursor-pointer"
-              onClick={() => console.log("Add new subject")}
+              className="bg-white text-gray-700 border border-dashed border-gray-400 p-6 rounded-2xl shadow-lg hover:shadow-2xl transition duration-300 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50"
+              onClick={() => navigate("/add-subject")}
             >
-              <Link to="/add-subject">
-                <AiOutlinePlus className="text-black text-4xl" />
-                <h3 className="mt-4 text-lg font-medium text-black-500">
-                  Add Subject
-                </h3>
-              </Link>
+              <AiOutlinePlus className="text-4xl mb-2" />
+              <h3 className="text-lg font-medium">Add Subject</h3>
             </div>
           </div>
         </main>

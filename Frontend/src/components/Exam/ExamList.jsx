@@ -130,13 +130,13 @@ const ExamList = () => {
 
   return (
     <div>
-        <DashboardNavbar/>
+        {/* <DashboardNavbar/> */}
     <div className="max-w-4xl mx-auto my-10 bg-white p-6 rounded-lg shadow-lg">
       <h2 className="text-2xl font-semibold text-gray-800 mb-4">Exams</h2>
 
       <button
         onClick={() => setIsCreateModalOpen(true)}
-        className="bg-green-500 text-white px-4 py-2 rounded-md mb-4"
+        className="bg-blue-600 text-white px-4 py-2 rounded-md mb-4"
       >
         Add Exam
       </button>

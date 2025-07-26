@@ -52,10 +52,10 @@ export const changePasswordAPI = async (newPassword) => {
 }
 
 // Update Profile
-export const updateProfileAPI = async ({ email, name, mobileNo, semester, DOB, course, regnum,auraPoints }) => {
+export const updateProfileAPI = async ({ email, username, mobileNo, semester, DOB, course, regnum,auraPoints }) => {
     const response = await axios.put(`${BASE_URL}/users/update-profile`, {
         email,
-        name,
+        username,
         mobileNo,
         semester,
         DOB,
@@ -70,5 +70,4 @@ export const updateProfileAPI = async ({ email, name, mobileNo, semester, DOB, c
     // Return a promise
     return response.data;
 }
-
 

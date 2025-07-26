@@ -31,6 +31,9 @@ import DisplayAssignments from "./components/DueDate/DisplayAssignments";
 import QuizMission from "./components/Store/QuizMission";
 import QuizMissionCS from "./components/Store/QuizMissionCS";
 
+import AddSubjectForm from "./components/TimeTable/AddSubjectForm";
+import TimetableView from "./components/TimeTable/TimetableView";
+
 function App() {
   const token = getUserFromStorage();
   const user = useSelector((state) => state?.auth?.user);
@@ -302,14 +305,14 @@ function App() {
             </AuthRoute>
           }
         />
-        {/* <Route
+        <Route
             path="/timetable"
             element={
             <AuthRoute>
-              <Timetable/>
+              <TimetableView/>
             </AuthRoute>
             }
-          /> */}
+          />
 
         <Route
           path="/tasks"

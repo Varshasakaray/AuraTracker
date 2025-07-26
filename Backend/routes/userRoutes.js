@@ -7,11 +7,11 @@ const userRouter = express.Router();
 userRouter.post('/api/v1/users/register', usersController.register);
 userRouter.post('/api/v1/users/login', usersController.login);
 userRouter.get('/api/v1/users/profile', isAuthenticated, usersController.profile);
-// Change password
+
 userRouter.put('/api/v1/users/change-password', isAuthenticated, usersController.changeUserPassword);
-// Update profile
+
 userRouter.put('/api/v1/users/update-profile', isAuthenticated, usersController.updateUserProfile);
-// Daily check-in
+
 userRouter.post('/api/v1/users/daily-check', isAuthenticated, usersController.dailyCheckIn);
 
 userRouter.post('/api/v1/users/update-points',isAuthenticated, usersController.updateAuraPoints);
