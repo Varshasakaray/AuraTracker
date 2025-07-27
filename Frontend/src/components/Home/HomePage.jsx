@@ -1,124 +1,165 @@
 import React from "react";
 import {
-  FaMoneyBillWave,
-  FaRegCalendarAlt,
+  FaCheckCircle,
   FaSignInAlt,
-  FaList,
-  FaChartPie,
+  FaTasks,
+  FaRegCalendarAlt,
   FaQuoteLeft,
+  FaPuzzlePiece,
+  FaRegFileAlt,
 } from "react-icons/fa";
 import { IoIosStats } from "react-icons/io";
-import { FaFilter } from "react-icons/fa6";
 import { Link } from "react-router-dom";
+
 const HeroSection = () => {
   return (
     <>
+      {/* Hero Section */}
       <div className="bg-gradient-to-r from-green-400 to-blue-500 text-white py-20 px-4">
-        <div className="max-w-7xl mx-auto flex flex-col items-center">
-          {/* Heading */}
-          <h1 className="text-5xl font-bold text-center">
-            Track Your Tasks Effortlessly
-          </h1>
-
-          {/* Subheading */}
-          <p className="mt-4 text-xl text-center">
-            Manage your tasks with a modern solution designed for you.
+        <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
+          <h1 className="text-5xl font-bold">Welcome to AuraTracker</h1>
+          <p className="mt-4 text-xl">
+            Turn your academic routine into a rewarding adventure with tasks, assignments, daily challenges, and aura points.
           </p>
 
-          {/* Feature Icons */}
-          <div className="flex space-x-8 mt-10">
+          {/* Features */}
+          <div className="flex flex-col md:flex-row space-y-8 md:space-y-0 md:space-x-12 mt-10">
             <div className="flex flex-col items-center">
-              <FaMoneyBillWave className="text-3xl" />
-              <p className="mt-2">Efficient Tracking</p>
+              <FaTasks className="text-3xl" />
+              <p className="mt-2">Add & Complete Tasks</p>
             </div>
             <div className="flex flex-col items-center">
-              <FaFilter className="text-3xl" />
-              <p className="mt-2">Tasks Filtering</p>
+              <FaRegFileAlt className="text-3xl" />
+              <p className="mt-2">Submit Assignments</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <FaPuzzlePiece className="text-3xl" />
+              <p className="mt-2">Daily Challenges</p>
             </div>
             <div className="flex flex-col items-center">
               <IoIosStats className="text-3xl" />
-              <p className="mt-2">Insightful Reports</p>
+              <p className="mt-2">Earn Aura Points</p>
             </div>
           </div>
 
-          {/* Call to Action Button */}
-          <Link to="/register">
-            <button className="mt-8 px-6 py-3 bg-white text-green-500 font-semibold rounded-lg shadow-md hover:bg-gray-100 transition duration-300">
+          {/* CTA */}
+          {/* <Link to="/register">
+            <button className="mt-10 px-6 py-3 bg-white text-green-500 font-semibold rounded-lg shadow-md hover:bg-gray-100 transition duration-300">
               Get Started
             </button>
-          </Link>
+          </Link> */}
         </div>
       </div>
-      {/* How it works */}
-      <div className="py-20 px-4">
-        <h2 className="text-3xl font-bold text-center text-gray-800">
-          How It Works
-        </h2>
-        <div className="mt-10 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+
+      {/* How It Works */}
+      <div className="py-20 px-4 bg-white">
+        <h2 className="text-3xl font-bold text-center text-gray-800">How It Works</h2>
+        <p className="text-center text-gray-600 mt-2 max-w-3xl mx-auto">
+          AuraTracker makes your student life productive and fun. Here’s how to get started:
+        </p>
+
+        <div className="mt-12 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {/* Step 1 */}
-          <div className="flex flex-col items-center text-center">
+          <div className="flex flex-col items-center text-center p-6 border rounded-lg shadow-sm hover:shadow-md transition">
             <div className="p-4 rounded-full bg-blue-500 text-white mb-4">
-              <FaSignInAlt className="text-xl" />
+              <FaSignInAlt className="text-2xl" />
             </div>
-            <h3 className="mb-2 font-semibold">Sign Up</h3>
-            <p>Register and start managing your tasks in a minute.</p>
+            <h3 className="mb-2 text-xl font-semibold">Sign Up</h3>
+            <p className="text-gray-600">
+              Create your account and set up your profile to start your academic journey
+            </p>
           </div>
+
           {/* Step 2 */}
-          <div className="flex flex-col items-center text-center">
+          <div className="flex flex-col items-center text-center p-6 border rounded-lg shadow-sm hover:shadow-md transition">
             <div className="p-4 rounded-full bg-green-500 text-white mb-4">
-              <FaList className="text-xl" />
+              <FaTasks className="text-2xl" />
             </div>
-            <h3 className="mb-2 font-semibold">Add Tasks</h3>
-            
+            <h3 className="mb-2 text-xl font-semibold">Add & Complete Tasks</h3>
+            <p className="text-gray-600">
+              Log tasks like studying or attending lectures. Check them off to earn aura points
+            </p>
           </div>
+
           {/* Step 3 */}
-          <div className="flex flex-col items-center text-center">
+          <div className="flex flex-col items-center text-center p-6 border rounded-lg shadow-sm hover:shadow-md transition">
             <div className="p-4 rounded-full bg-yellow-500 text-white mb-4">
-              <FaChartPie className="text-xl" />
+              <FaRegFileAlt className="text-2xl" />
             </div>
-            <h3 className="mb-2 font-semibold">View Reports</h3>
-            <p>See insightful reports & graphs of your finances.</p>
+            <h3 className="mb-2 text-xl font-semibold">Submit Assignments</h3>
+            <p className="text-gray-600">
+              Submit your assignments on time and get rewarded with aura points
+            </p>
+          </div>
+
+          {/* Step 4 */}
+          <div className="flex flex-col items-center text-center p-6 border rounded-lg shadow-sm hover:shadow-md transition">
+            <div className="p-4 rounded-full bg-pink-500 text-white mb-4">
+              <FaPuzzlePiece className="text-2xl" />
+            </div>
+            <h3 className="mb-2 text-xl font-semibold">Complete Daily Challenges</h3>
+            <p className="text-gray-600">
+              Boost your consistency with small daily challenges
+            </p>
+          </div>
+
+          {/* Step 5 */}
+          <div className="flex flex-col items-center text-center p-6 border rounded-lg shadow-sm hover:shadow-md transition">
+            <div className="p-4 rounded-full bg-purple-600 text-white mb-4">
+              <IoIosStats className="text-2xl" />
+            </div>
+            <h3 className="mb-2 text-xl font-semibold">Earn Aura Points</h3>
+            <p className="text-gray-600">
+              Everything you complete earns you aura points. Track your growth and level up!
+            </p>
+          </div>
+
+          {/* Step 6 */}
+          <div className="flex flex-col items-center text-center p-6 border rounded-lg shadow-sm hover:shadow-md transition">
+            <div className="p-4 rounded-full bg-indigo-600 text-white mb-4">
+              <FaRegCalendarAlt className="text-2xl" />
+            </div>
+            <h3 className="mb-2 text-xl font-semibold">Plan Your Week</h3>
+            <p className="text-gray-600">
+              Use the built-in timetable to stay organized across classes, tasks, and assignments.
+            </p>
           </div>
         </div>
       </div>
+
       {/* Testimonials */}
       <div className="bg-gray-100 py-20 px-4">
-        <h2 className="text-3xl font-bold text-center text-gray-800">
-          What Our Users Say
-        </h2>
+        <h2 className="text-3xl font-bold text-center text-gray-800">Why Students Love AuraTracker</h2>
         <div className="mt-10 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <FaQuoteLeft className="text-xl text-gray-400" />
             <p className="mt-4">
-              "This app has revolutionized the way I track my expenses. Highly
-              intuitive and user-friendly."
+              "AuraTracker turned my boring to-do list into something I actually enjoy completing."
             </p>
-            <p className="mt-4 font-bold">- Jane Doe</p>
+            <p className="mt-4 font-bold">- Priya Sharma</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <FaQuoteLeft className="text-xl text-gray-400" />
             <p className="mt-4">
-              "Finally, a hassle-free way to manage my finances. The insights
-              feature is a game changer!"
+              "Submitting assignments and getting points for it? Genius. I’ve never been more consistent!"
             </p>
-            <p className="mt-4 font-bold">- John Smith</p>
+            <p className="mt-4 font-bold">- Rahul Mehta</p>
           </div>
         </div>
       </div>
-      {/* CTA */}
+
+      {/* Final CTA */}
       <div className="bg-blue-500 text-white py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold">
-            Ready to Take Control of Your Finances?
-          </h2>
+          <h2 className="text-3xl font-bold">Ready to Level Up Your Student Life?</h2>
           <p className="mt-4">
-            Join us now and start managing your expenses like a pro!
+            Join AuraTracker today and start building your daily momentum.
           </p>
-          <Link to="/register">
+          {/* <Link to="/register">
             <button className="mt-8 px-6 py-3 bg-white text-blue-500 font-semibold rounded-lg shadow-md hover:bg-gray-100 transition duration-300">
-              Sign Up For Free
+              Sign Up Free
             </button>
-          </Link>
+          </Link> */}
         </div>
       </div>
     </>
