@@ -5,11 +5,11 @@ import axios from 'axios';
 const token = getUserFromStorage();
 
 // Login
-export const loginAPI = async ({ email, password,name, mobileNo, semester, DOB, course, regnum,auraPoints }) => {
+export const loginAPI = async ({ email, password,username, mobileNo, semester, DOB, course, regnum,auraPoints }) => {
     const response = await axios.post(`${BASE_URL}/users/login`, {
         email,
         password,
-        name,
+        username,
         mobileNo,
         semester,
         DOB,

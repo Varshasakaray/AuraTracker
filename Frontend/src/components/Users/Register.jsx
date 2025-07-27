@@ -96,7 +96,7 @@ const RegistrationForm = () => {
       className="max-w-md mx-auto my-10 bg-white p-6 rounded-xl shadow-lg space-y-6 border border-gray-200"
     >
       <h2 className="text-3xl font-semibold text-center text-gray-800">
-        Sign Up
+        User Sign Up
       </h2>
       {isPending && <AlertMessage type="loading" message="Registering you in ..." />}
       {isError && <AlertMessage type="error" message={error?.response?.data?.message} />}

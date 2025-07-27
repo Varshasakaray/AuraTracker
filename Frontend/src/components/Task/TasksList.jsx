@@ -5,10 +5,120 @@ import { useNavigate } from "react-router-dom";
 import { deleteTaskAPI, listTasksAPI, updateTaskAPI } from "../../services/task/taskService";
 import AlertMessage from "../Alert/AlertMessage";
 import { CircularProgressbar } from "react-circular-progressbar";
-import "react-circular-progressbar/dist/styles.css"; // For styling the progress bar
+import "react-circular-progressbar/dist/styles.css"; 
 import { Switch } from "@headlessui/react";
+import { toast } from "react-toastify";
+import badgeImage from "../../assets/newBie.jpg";
+import striver from "../../assets/striver.jpg";
+import risingStar from "../../assets/risingStar.jpg";
+import paceseter from "../../assets/paceseter.jpg";
+import legend from "../../assets/legend.jpg";
+import trailBlind from "../../assets/trailBlind.jpg";
+import trailBlozer from "../../assets/trailBlozer.jpg";
+import masterMind from "../../assets/masterMind.jpg";
+import axios from "axios";
+import { BASE_URL } from "../../utils/url";
 
 const TasksList = () => {
+
+  const updateAuraPointsAndBadge = async () => {
+    const badgeThresholds = [
+      { points: 50, name: "Newbie", image: badgeImage },
+      { points: 100, name: "Striver", image: striver },
+      { points: 150, name: "Achiever", image: risingStar },
+      { points: 200, name: "Expert", image: paceseter },
+      { points: 500, name: "Master", image: legend },
+      { points: 1000, name: "Trailblazer", image: trailBlind },
+      { points: 2000, name: "Pioneer", image: trailBlozer },
+      { points: 5000, name: "Mastermind", image: masterMind },
+    ];
+
+    const token = localStorage.getItem("token");
+    try {
+      if (!token) {
+        console.error("No token found in localStorage");
+        return;
+      }
+
+      // // 1. Get updated Aura points
+      // await axios.post(
+      //   `${BASE_URL}/users/update-points`,
+      //   {
+      //     pointsToAdd: 10,
+      //   },
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${token}`,
+      //     },
+      //   }
+      // );
+
+      toast.success("🎉 Task marked as Complete! 🪙 +10 Aura points");
+
+      // Save notification to DB
+      await axios.post(
+        `${BASE_URL}/notifications`,
+        { message: "🎉 Task marked as Complete! 🪙 +10 Aura points" },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // 2. Get updated user profile
+      const { data: userData } = await axios.get(`${BASE_URL}/users/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const points = userData.auraPoints || 0;
+      const serverBadges = userData.badges || [];
+
+      // Update localStorage
+      const storedUser = JSON.parse(localStorage.getItem("userInfo")) || {};
+      storedUser.auraPoints = points;
+      storedUser.badges = serverBadges;
+      localStorage.setItem("userInfo", JSON.stringify(storedUser));
+
+      // 3. Get updated Badge
+      const earnedBadge = badgeThresholds
+        .slice()
+        .reverse()
+        .find(
+          (badge) =>
+            points >= badge.points && !serverBadges.includes(badge.name)
+        );
+
+      if (earnedBadge) {
+        const updatedBadges = [...new Set([...serverBadges, earnedBadge.name])];
+
+        // Save to MongoDB
+        await axios.put(
+          `${BASE_URL}/users/update-badges`,
+          { badges: updatedBadges },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        // Optional: Send badge email
+        await axios.post(`${BASE_URL}/send-badge-email`, {
+          email: storedUser.email,
+          badgeName: earnedBadge.name,
+        });
+
+        // Save notification to DB
+        await axios.post(
+          `${BASE_URL}/notifications`,
+          { message: `🎉 You earned a new badge: ${earnedBadge.name}!` },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        toast.success(`🏅 You just unlocked a badge: ${earnedBadge.name}`);
+      }
+    } catch (err) {
+      console.error("Aura update or badge check failed:", err);
+    }
+  };
+
   const { data, isError, isLoading, error, refetch } = useQuery({
     queryFn: listTasksAPI,
     queryKey: ["list-tasks"],
@@ -81,7 +191,8 @@ const TasksList = () => {
         localStorage.setItem("userInfo", JSON.stringify(userInfo));
       }
   
-      alert(`Task marked as complete! Your new aura points: ${updatedUser.auraPoints}`);
+      
+      updateAuraPointsAndBadge();
       refetch(); // Refresh task list
     } catch (e) {
       console.log("Error updating task:", e);
@@ -141,7 +252,7 @@ const TasksList = () => {
                   },
                   text: {
                     fill: "#4caf50", // Green text for percentage
-                    fontSize: "30px", // Larger text size
+                    fontSize: "30px", 
                   },
                 }}
               />
@@ -163,7 +274,7 @@ const TasksList = () => {
                   },
                   text: {
                     fill: "#f44336", // Red text for percentage
-                    fontSize: "30px", // Larger text size
+                    fontSize: "30px", 
                   },
                 }}
               />

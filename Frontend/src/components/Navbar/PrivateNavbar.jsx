@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
 import { Disclosure, Dialog } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { IoLogOutOutline } from "react-icons/io5";
 import { SiAuthy } from "react-icons/si";
 import { useDispatch } from "react-redux";
@@ -38,6 +38,7 @@ function classNames(...classes) {
 
 export default function PrivateNavbar() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
   const user = JSON.parse(localStorage.getItem("userInfo") || null);
   const [auraPoints, setAuraPoints] = useState(user?.auraPoints || 0);
@@ -52,11 +53,14 @@ export default function PrivateNavbar() {
   const toggleTheme = () => {
     setDarkMode(!darkMode);
     localStorage.setItem("theme", darkMode ? "light" : "dark");
+    
   };
 
   const logoutHandler = () => {
     dispatch(logoutAction());
     localStorage.removeItem("userInfo");
+    
+    
   };
 
   useEffect(() => {
@@ -423,7 +427,7 @@ export default function PrivateNavbar() {
                       <span>Logout</span>
                     </button>
                   </div>
-                  <button
+                  {/* <button
                     onClick={toggleTheme}
                     className="ml-4 text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
                   >
@@ -432,7 +436,7 @@ export default function PrivateNavbar() {
                     ) : (
                       <HiMoon className="h-6 w-6" />
                     )}
-                  </button>
+                  </button> */}
                   {latestBadge && (
                     <div className="relative">
                       <button

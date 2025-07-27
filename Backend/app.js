@@ -14,6 +14,8 @@ import multer from "multer";
 import path from 'path';
 import { fileURLToPath } from 'url';
 import sendEmail from './utils/sendEmail.js';
+import adminRouter from './routes/adminRoutes.js';
+
 // ES module workaround for __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -103,6 +105,7 @@ app.post("/send-badge-email", async (req, res) => {
 // });
 
 app.use("/",userRouter);
+app.use("/",adminRouter);
 app.use("/",taskRouter);
 app.use("/",attendanceRouter);
 app.use("/",examRouter);

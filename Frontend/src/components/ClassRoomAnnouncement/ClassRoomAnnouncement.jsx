@@ -17,6 +17,7 @@ import legend from "../../assets/legend.jpg";
 import trailBlind from "../../assets/trailBlind.jpg";
 import trailBlozer from "../../assets/trailBlozer.jpg";
 import masterMind from "../../assets/masterMind.jpg";
+import { toast } from "react-toastify";
 
 const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
   const navigate = useNavigate();
@@ -115,12 +116,12 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
         }
       );
 
-      alert("✅ Assignment submission complete! +10 Aura points.");
+      toast.success("🎉 Assignment submission Complete! 🪙 +10 Aura points");
 
       // Save notification to DB
       await axios.post(
         `${BASE_URL}/notifications`,
-        { message: "✅ Assignment submission complete! +10 Aura points." },
+        { message: "🎉 Assignment submission Complete! 🪙 +10 Aura points" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -231,7 +232,7 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
       }
 
       setSelectedFiles([]);
-      alert("Assignment uploaded successfully!");
+      toast.success("Assignment uploaded successfully!");
 
       // Update Aura points and badge
       updateAuraPointsAndBadge();

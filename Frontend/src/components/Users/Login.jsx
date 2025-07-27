@@ -14,7 +14,7 @@ const validationSchema=Yup.object({
     email:Yup.string().email("Invalid").required("Email is required"),
     password:Yup.string()
     .min(5,"Password must be at least 5 characters")
-    .required("Email is required"),
+    .required("Password is required"),
 })
 const LoginForm = () => {
     //Navigate
@@ -64,7 +64,7 @@ const LoginForm = () => {
   return (
     <form onSubmit={formik.handleSubmit} className="max-w-md mx-auto my-10 bg-white p-6 rounded-xl shadow-lg space-y-6 border border-gray-200">
       <h2 className="text-3xl font-semibold text-center text-gray-800">
-        Login
+       User Login
       </h2>
       {/* Display messages */}
       {isPending && <AlertMessage type='loading' message='Login you in ...'/> }

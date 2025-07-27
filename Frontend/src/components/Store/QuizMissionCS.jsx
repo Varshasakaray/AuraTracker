@@ -10,6 +10,7 @@ import legend from "../../assets/legend.jpg";
 import trailBlind from "../../assets/trailBlind.jpg";
 import trailBlozer from "../../assets/trailBlozer.jpg";
 import masterMind from "../../assets/masterMind.jpg";
+import { toast } from "react-toastify";
 const QuizMission = () => {
   const badgeThresholds = [
     { points: 50, name: "Newbie", image: badgeImage },
@@ -102,11 +103,11 @@ const QuizMission = () => {
         // Save notification to DB
         await axios.post(
           `${BASE_URL}/notifications`,
-          { message: "✅ Daily-CS-Challenge complete! +20 Aura points." },
+          { message: "🎉 Daily-CS-Challenge Complete! 🪙 +20 Aura points." },
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        alert(" ✅ Daily-CS-Challenge complete! +20 Aura points");
+        toast.success(" 🎉 Daily-CS-Challenge Complete!! 🪙 +20 Aura points");
 
         // 2. Get updated user profile
         const { data: userData } = await axios.get(

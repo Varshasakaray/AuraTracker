@@ -33,7 +33,7 @@ const UserProfile = () => {
     <>
       <div className="max-w-4xl mx-auto my-10 p-8 bg-white rounded-lg shadow-md">
         <h1 className="mb-2 text-2xl text-center font-extrabold">
-          Welcome
+          Welcome to User Profile
           
         </h1>
         <h3 className="text-xl font-semibold text-gray-800 mb-4">

@@ -33,6 +33,15 @@ import QuizMissionCS from "./components/Store/QuizMissionCS";
 
 import AddSubjectForm from "./components/TimeTable/AddSubjectForm";
 import TimetableView from "./components/TimeTable/TimetableView";
+import AdminAuthRoute from "./components/Auth/AdminAuthRoute";
+import AdminRegistrationForm from "./components/Admin/AdminRegister";
+import AdminLoginForm from "./components/Admin/AdminLogin";
+import AdminPrivateNavbar from "./components/AdminNavbar/AdminPrivateNavbar";
+import AdminProfile from "./components/Admin/AdminProfile";
+
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 
 function App() {
   const token = getUserFromStorage();
@@ -123,7 +132,7 @@ function App() {
 
         // Show alert only if points have increased
         if (newAuraPoints > oldAuraPoints) {
-          alert(`🎉 Daily Check-in Complete!! 🪙 +1 point`);
+          toast.success(`🎉 Daily Check-in Complete!! 🪙 +1 Aura point`);
 
           // Mark check-in in localStorage
           localStorage.setItem(key, "true");
@@ -131,7 +140,7 @@ function App() {
           // Save notification to DB
           await axios.post(
             `${BASE_URL}/notifications`,
-            { message: "✅ Daily check-in complete! +1 Aura point." },
+            { message: "🎉 Daily Check-in Complete!! 🪙 +1 Aura point" },
             { headers: { Authorization: `Bearer ${token}` } }
           );
         }
@@ -162,6 +171,8 @@ function App() {
             </>
           }
         />
+
+        {/* User registartion */}
         <Route
           path="/register"
           element={
@@ -171,6 +182,8 @@ function App() {
             </>
           }
         />
+
+        {/* User login */}
         <Route
           path="/login"
           element={
@@ -180,6 +193,27 @@ function App() {
             </>
           }
         />
+
+        <Route
+          path="/adminPage/login"
+          element={
+            <>
+              <PublicNavbar />
+              <AdminLoginForm />
+            </>
+          }
+        />
+
+        <Route
+          path="/adminPage/register"
+          element={
+            <>
+              <PublicNavbar />
+              <AdminRegistrationForm />
+            </>
+          }
+        />
+
         {/* Authenticated Routes */}
         <Route
           path="/add-task"
@@ -226,6 +260,7 @@ function App() {
             </AuthRoute>
           }
         />
+
         <Route
           path="/profile"
           element={
@@ -235,6 +270,18 @@ function App() {
                 <UserProfile />
               </>
             </AuthRoute>
+          }
+        />
+
+        <Route
+          path="/adminPage/profile"
+          element={
+            <AdminAuthRoute>
+              <>
+                <AdminPrivateNavbar />
+                <AdminProfile />
+              </>
+            </AdminAuthRoute>
           }
         />
 
@@ -251,7 +298,25 @@ function App() {
           path="/assignment"
           element={
             <ProtectedRoute user={loggedInMail}>
-              <PrivateNavbar />
+              {/* <PrivateNavbar /> */}
+              <AssignmentHeader />
+              <ol className="joined">
+                {createdClasses.map((item) => (
+                  <JoinedClasses classData={item} />
+                ))}
+                {joinedClasses.map((item) => (
+                  <JoinedClasses classData={item} />
+                ))}
+              </ol>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/adminPage/assignment"
+          element={
+            <ProtectedRoute user={loggedInMail}>
+              {/* <AdminPrivateNavbar /> */}
               <AssignmentHeader />
               <ol className="joined">
                 {createdClasses.map((item) => (
@@ -306,13 +371,13 @@ function App() {
           }
         />
         <Route
-            path="/timetable"
-            element={
+          path="/timetable"
+          element={
             <AuthRoute>
-              <TimetableView/>
+              <TimetableView />
             </AuthRoute>
-            }
-          />
+          }
+        />
 
         <Route
           path="/tasks"
@@ -344,7 +409,7 @@ function App() {
             path={`/${item.id}`}
             element={
               <ProtectedRoute user={loggedInMail}>
-                <PrivateNavbar />
+                {/* <PrivateNavbar /> */}
                 <Main classData={item} />
               </ProtectedRoute>
             }
@@ -358,7 +423,7 @@ function App() {
             path={`/${item.id}`}
             element={
               <ProtectedRoute user={loggedInMail}>
-                <PrivateNavbar />
+                {/* <PrivateNavbar /> */}
                 <Main classData={item} />
               </ProtectedRoute>
             }
@@ -403,6 +468,12 @@ function App() {
         <Route path="/daily-math-challenge" element={<QuizMission />} />
         <Route path="/daily-cs-challenge" element={<QuizMissionCS />} />
       </Routes>
+
+      <ToastContainer
+        position="top-center"
+        autoClose={2000}
+        toastClassName="!w-[400px] !text-sm !break-words" 
+      />
     </BrowserRouter>
   );
 }
