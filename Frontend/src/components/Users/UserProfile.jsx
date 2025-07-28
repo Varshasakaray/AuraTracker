@@ -43,6 +43,7 @@ const UserProfile = () => {
       {isPending && <AlertMessage type='loading' message='updating in ...'/> }
       {isError && <AlertMessage type='error' message={error.response.data.message} /> }
       {isSuccess && <AlertMessage type='success' message='Update Successful'/> }
+      
 
         <form onSubmit={formik.handleSubmit} className="space-y-6">
           {/* User Name Field */}

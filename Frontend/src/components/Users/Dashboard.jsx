@@ -60,11 +60,8 @@ const Dashboard = () => {
         <aside className="w-72 bg-gray-100 p-6 rounded-xl shadow-xl">
           <div className="text-center">
             <div className="w-28 h-28 mx-auto rounded-full overflow-hidden border-4 border-blue-500">
-              <img
-                src="https://via.placeholder.com/150"
-                alt="Profile"
-                className="object-cover w-full h-full"
-              />
+              <span style={{ fontSize: "80px" }}>👤</span>
+              
             </div>
             <h2 className="mt-4 text-xl font-bold">
               Hey, <span className="text-blue-600">{user.username}</span>
