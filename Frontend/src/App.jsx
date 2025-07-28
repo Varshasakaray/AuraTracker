@@ -46,6 +46,7 @@ import { toast } from "react-toastify";
 function App() {
   const token = getUserFromStorage();
   const user = useSelector((state) => state?.auth?.user);
+  const adminInfo = JSON.parse(localStorage.getItem("adminInfo"));
   const { loggedInMail } = useLocalContext();
   console.log(token);
   const [createdClasses, setCreatedClasses] = useState([]);
@@ -103,6 +104,7 @@ function App() {
 
   useEffect(() => {
     const checkInUser = async () => {
+      if(adminInfo) return; // Skip check-in for admin users
       if (!user || !token || !user?.email) return;
 
       const today = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"

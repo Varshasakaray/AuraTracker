@@ -128,6 +128,13 @@ export default function PrivateNavbar() {
                     }
                   `}</style>
                   </Fragment>
+                  
+                  <div className="flex items-center space-x-1">
+                    <FaUserShield className={"text-green-600 h-12 w-11"} />
+                    <span className={"text-xs font-bold text-gray-700"}>
+                      Hey, Admin
+                    </span>
+                  </div>
 
                   <div className="flex-shrink-0">
                     <button
@@ -154,12 +161,7 @@ export default function PrivateNavbar() {
                     )}
                   </button> */}
 
-                  <div className="flex items-center space-x-1">
-                    <FaUserShield className={"text-green-600 h-12 w-11"} />
-                    <span className={"text-xs font-bold text-gray-700"}>
-                      Hey, Admin
-                    </span>
-                  </div>
+                  
                 </div>
               </div>
             </div>

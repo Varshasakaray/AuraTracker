@@ -10,7 +10,7 @@ import AlertMessage from "../Alert/AlertMessage";
 const validationSchema = Yup.object({
   password: Yup.string()
     .min(5, "Password must be at least 5 characters long")
-    .required("Email is required"),
+    .required("Password is required"),
 });
 const AdminUpdatePassword = () => {
   const dispatch = useDispatch();
@@ -30,7 +30,7 @@ const AdminUpdatePassword = () => {
         .then((data) => {
           //logout
 
-          useDispatch(logoutAction());
+          dispatch(logoutAction());
           //remove the admin from storage
           localStorage.removeItem("adminInfo");
         })
