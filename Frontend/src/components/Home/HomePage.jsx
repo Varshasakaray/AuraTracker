@@ -176,7 +176,8 @@ const HeroSection = () => {
               Sign Up Free
             </button>
           </Link> */}
-          <p>© {new Date().getFullYear()} AuraTracker Corp.</p>
+          
+          <p>Copyright © {new Date().getFullYear()} AuraTracker. All rights reserved.</p>
         </div>
       </div>
     </>

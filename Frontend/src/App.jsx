@@ -134,7 +134,7 @@ function App() {
 
         // Show alert only if points have increased
         if (newAuraPoints > oldAuraPoints) {
-          toast.success(`🎉 Daily Check-in Complete!! 🪙 +1 Aura point`);
+          toast.success(`🎉 Daily Check-in Complete! 🪙 +1 Aura point Unlocked!`);
 
           // Mark check-in in localStorage
           localStorage.setItem(key, "true");
@@ -142,7 +142,7 @@ function App() {
           // Save notification to DB
           await axios.post(
             `${BASE_URL}/notifications`,
-            { message: "🎉 Daily Check-in Complete!! 🪙 +1 Aura point" },
+            { message: "🎉 Daily Check-in Complete! 🪙 +1 Aura point Unlocked!" },
             { headers: { Authorization: `Bearer ${token}` } }
           );
         }
@@ -287,6 +287,8 @@ function App() {
           }
         />
 
+        
+
         {/* Dashboard Route Without Private Navbar */}
         <Route
           path="/classroomlogin"
@@ -347,7 +349,7 @@ function App() {
           element={
             <AuthRoute>
               <>
-                <PrivateNavbar />
+                {/* <PrivateNavbar /> */}
                 <AddSubject />
               </>
             </AuthRoute>

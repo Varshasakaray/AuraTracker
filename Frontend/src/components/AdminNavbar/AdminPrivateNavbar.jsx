@@ -17,6 +17,7 @@ export default function PrivateNavbar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
+  const [showCard, setShowCard] = useState(false);
   const admin = JSON.parse(localStorage.getItem("adminInfo") || null);
 
   const toggleTheme = () => {
@@ -128,9 +129,10 @@ export default function PrivateNavbar() {
                     }
                   `}</style>
                   </Fragment>
-                  
+
                   <div className="flex items-center space-x-1">
                     <FaUserShield className={"text-green-600 h-12 w-11"} />
+
                     <span className={"text-xs font-bold text-gray-700"}>
                       Hey, Admin
                     </span>
@@ -160,8 +162,6 @@ export default function PrivateNavbar() {
                       <HiMoon className="h-6 w-6" />
                     )}
                   </button> */}
-
-                  
                 </div>
               </div>
             </div>

@@ -59,11 +59,20 @@ function SubmittedAssignments() {
                       📑 View PDF
                     </a>
                   ) : (
-                    <img
-                      src={`http://localhost:8000/${fileUrl}`}
-                      alt="Submitted File"
+                    // <img
+                    //   src={`http://localhost:8000/${fileUrl}`}
+                    //   alt="Submitted File"
+                    //   className="submission-image"
+                    // />
+
+                    <a
+                      href={`http://localhost:8000/${fileUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="submission-image"
-                    />
+                    >
+                      📷 View Image
+                    </a>
                   )}
                 </div>
               ))}

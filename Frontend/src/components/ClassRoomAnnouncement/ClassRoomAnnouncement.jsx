@@ -116,12 +116,12 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
         }
       );
 
-      toast.success("🎉 Assignment submission Complete! 🪙 +10 Aura points");
+      toast.success("🪙 +10 Aura Points Unlocked!");
 
       // Save notification to DB
       await axios.post(
         `${BASE_URL}/notifications`,
-        { message: "🎉 Assignment submission Complete! 🪙 +10 Aura points" },
+        { message: "🎉 Assignment Submission Complete! 🪙 +10 Aura Points Unlocked!" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -232,7 +232,7 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
       }
 
       setSelectedFiles([]);
-      toast.success("Assignment uploaded successfully!");
+      toast.success("🎊 Assignment Upload: SUCCESS!");
 
       // Update Aura points and badge
       updateAuraPointsAndBadge();
@@ -355,7 +355,7 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
                 <div className="amt__upload">
                   {submittedAssignments[item.id] ? (
                     <p className="submission-success">
-                      ✅ Successfully Submitted
+                      🎯 Submission Successful! 
                     </p>
                   ) : isOverdue ? (
                     <p className="overdue-message">

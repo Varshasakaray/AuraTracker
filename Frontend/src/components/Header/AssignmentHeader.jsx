@@ -41,7 +41,7 @@ const AssignmentHeader = ({ children }) => {
         <div className="flex justify-between items-center px-4 py-2">
           <div className="flex items-center">
             {children}
-            <img
+             <img
               src="https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
               alt="Classroom"
               className="h-6"
@@ -51,7 +51,7 @@ const AssignmentHeader = ({ children }) => {
               className="text-gray-600 text-lg ml-2 cursor-pointer"
             >
               Classroom
-            </Typography>
+            </Typography> 
           </div>
           <div className="flex items-center gap-4">
             <IconButton

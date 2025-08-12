@@ -103,11 +103,11 @@ const QuizMission = () => {
         // Save notification to DB
         await axios.post(
           `${BASE_URL}/notifications`,
-          { message: "🎉 Daily-CS-Challenge Complete! 🪙 +20 Aura points." },
+          { message: "🎉 Daily-CS-Challenge Complete! 🪙 +20 Aura points Unlocked!" },
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        toast.success(" 🎉 Daily-CS-Challenge Complete!! 🪙 +20 Aura points");
+        toast.success(" 🎉 Daily-CS-Challenge Complete! 🪙 +20 Aura points Unlocked!");
 
         // 2. Get updated user profile
         const { data: userData } = await axios.get(
