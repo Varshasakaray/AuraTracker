@@ -7,6 +7,7 @@ import ClassRoomAnnouncement from "../ClassRoomAnnouncement/ClassRoomAnnouncemen
 import db from "../lib/Firebase";
 import firebase from "firebase/compat/app";
 import { Link } from "react-router-dom";
+import { BASE_URL } from "../../utils/url";
 
 const Main = ({ classData }) => {
   const { loggedInMail, loggedInUser } = useLocalContext();
@@ -97,9 +98,8 @@ const Main = ({ classData }) => {
         const formData = new FormData();
         selectedFiles.forEach((file) => formData.append("files", file));
         const response = await axios.post(
-          "http://localhost:8000/api/v1/upload",
-          formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
+          `${BASE_URL}/upload`,
+          formData
         );
         fileUrls = response.data.fileUrls;
       }

@@ -17,12 +17,16 @@ import { fileURLToPath } from 'url';
 import sendEmail from './utils/sendEmail.js';
 import adminRouter from './routes/adminRoutes.js';
 import dotenv from 'dotenv';
+import fs from 'fs';
 dotenv.config();
 
 // ES module workaround for __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
+const uploadsDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 const app = express();
 const PORT = process.env.PORT;
 
@@ -71,11 +75,11 @@ const storage = multer.diskStorage({
  // Upload a file
  app.post("/api/v1/upload", upload.array("files", 10), async (req, res) => {
   try {
-    console.log("Uploaded files:", req.files); // Debug: log the files received
+    console.log("Uploaded files:", req.files); 
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ message: "No files uploaded." });
     }
-    // Create an array of file URLs (adjust the URL if needed)
+    
     const fileUrls = req.files.map((file) => `uploads/${file.filename}`);
     return res.json({ message: "Upload successful!", fileUrls });
   } catch (error) {
