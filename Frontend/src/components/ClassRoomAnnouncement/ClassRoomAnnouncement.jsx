@@ -199,9 +199,8 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
       selectedFiles.forEach((file) => formData.append("files", file));
 
       const response = await axios.post(
-        "http://localhost:8000/api/v1/upload",
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        `${BASE_URL}/upload`,
+        formData
       );
 
       if (!response.data.fileUrls || response.data.fileUrls.length === 0) {
@@ -308,7 +307,7 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
                       .split(".")
                       .pop()
                       .toLowerCase();
-                    const filePath = `http://localhost:8000/${fileUrl}`;
+                    const filePath = `${import.meta.env.VITE_BACKEND_URL}/${fileUrl}`;
                     if (["jpg", "jpeg", "png"].includes(fileExtension)) {
                       return (
                         <img
