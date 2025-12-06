@@ -51,7 +51,7 @@ function SubmittedAssignments() {
                 <div key={index} className="file-preview">
                   {fileUrl.endsWith(".pdf") ? (
                     <a
-                      href={`http://localhost:8000/${fileUrl}`}
+                      href={`${import.meta.env.VITE_BACKEND_URL}/${fileUrl}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="pdf-link"
@@ -59,14 +59,9 @@ function SubmittedAssignments() {
                       📑 View PDF
                     </a>
                   ) : (
-                    // <img
-                    //   src={`http://localhost:8000/${fileUrl}`}
-                    //   alt="Submitted File"
-                    //   className="submission-image"
-                    // />
-
+                   
                     <a
-                      href={`http://localhost:8000/${fileUrl}`}
+                      href={`${import.meta.env.VITE_BACKEND_URL}/${fileUrl}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="submission-image"
@@ -93,3 +88,4 @@ function SubmittedAssignments() {
 }
 
 export default SubmittedAssignments;
+
