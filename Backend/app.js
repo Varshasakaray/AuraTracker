@@ -11,27 +11,19 @@ import examRouter from './routes/examRouter.js';
 import timetableRouter from './routes/timetableRoutes.js';
 import notificationRouter from './routes/notificationRoutes.js';
 import missionRouter from './routes/missionRoutes.js';
-import multer from "multer";
-import path from 'path';
-import { fileURLToPath } from 'url';
+import upload from './config/cloudinary.js';
 import sendEmail from './utils/sendEmail.js';
 import adminRouter from './routes/adminRoutes.js';
 import dotenv from 'dotenv';
-import fs from 'fs';
+
 dotenv.config();
 
-// ES module workaround for __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const uploadsDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+
 const app = express();
 const PORT = process.env.PORT;
 
 app.use(express.json());
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 
 // Connect to MongoDB
 // mongoose.connect("mongodb://localhost:27017/aura-tracker")
@@ -48,19 +40,7 @@ app.use(cors(corsOptions));
 // app.use(cors());
 
 
-// Multer config
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, 'uploads'));
-  },
-  filename: function (req, file, cb) {
-  const originalName = file.originalname.replace(/\s+/g, '_') // Replace spaces with underscore
-  .replace(/[?#%&]/g, "_");    // remove #, ?, %, & etc.
-  cb(null, Date.now() + '-' + originalName);
-}
 
-});
- const upload = multer({storage});
 
 // Fetch all files
  app.get("/api/v1/files", async(req,res) =>{
@@ -74,15 +54,15 @@ const storage = multer.diskStorage({
  })
 
  // Upload a file
- app.post("/api/v1/upload", upload.array("files", 10), async (req, res) => {
+ app.post("/api/v1/upload", upload.array('files', 10), async (req, res) => {
   try {
     console.log("Uploaded files:", req.files); 
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ message: "No files uploaded." });
     }
     
-    const fileUrls = req.files.map((file) => `uploads/${file.filename}`);
-    return res.json({ message: "Upload successful!", fileUrls });
+    const urls = req.files.map(file => file.path);
+    return res.json({ message: "File uploaded successfully", fileUrls: urls});
   } catch (error) {
     console.error("Error uploading files:", error);
     res.status(500).json({ message: "An error occurred while uploading files" });
