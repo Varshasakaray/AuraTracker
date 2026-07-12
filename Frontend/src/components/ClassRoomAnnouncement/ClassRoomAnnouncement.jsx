@@ -162,11 +162,7 @@ const ClassRoomAnnouncement = ({ classData, onEdit, onSubmissionChange }) => {
           }
         );
 
-        // Optional: Send badge email
-        await axios.post(`${BASE_URL}/send-badge-email`, {
-          email: storedUser.email,
-          badgeName: earnedBadge.name,
-        });
+
 
         // Save notification to DB
         await axios.post(

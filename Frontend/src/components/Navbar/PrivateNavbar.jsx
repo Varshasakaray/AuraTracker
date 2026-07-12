@@ -155,11 +155,7 @@ export default function PrivateNavbar() {
           }
         );
 
-        // Send email notification
-        await axios.post(`${BASE_URL}/send-badge-email`, {
-          email: userData.email, // Ensure email is available in localStorage
-          badgeName: earnedBadge.name,
-        });
+
       } catch (error) {
         console.error("Error updating badges or sending email:", error);
       }
@@ -259,29 +255,9 @@ export default function PrivateNavbar() {
                       }
                     />
                   </div>
+
                   <div className="hidden md:ml-6 md:flex md:space-x-8">
-                    <Link
-                      to="/"
-                      className={
-                        darkMode
-                          ? "inline-flex items-center border-b-2 border-indigo-500 px-1 pt-1 text-sm font-medium text-gray-300"
-                          : "inline-flex items-center border-b-2 border-indigo-500 px-1 pt-1 text-sm font-medium text-gray-900"
-                      }
-                    >
-                      AuraTracker
-                    </Link>
-                  </div>
-                  <div className="hidden md:ml-6 md:flex md:space-x-8">
-                    <Link
-                      to="/add-task"
-                      className={
-                        darkMode
-                          ? "inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-300 hover:border-gray-700 hover:text-gray-400"
-                          : "inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                      }
-                    >
-                      Add Tasks
-                    </Link>
+
                     <Link
                       to="/tasks"
                       className={

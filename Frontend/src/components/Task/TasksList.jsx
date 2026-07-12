@@ -1,8 +1,8 @@
-import React from "react";
-import { FaTrash } from "react-icons/fa";
+import React, { useState } from "react";
+import { FaTrash, FaPlus } from "react-icons/fa";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { deleteTaskAPI, listTasksAPI, updateTaskAPI } from "../../services/task/taskService";
+import { deleteTaskAPI, listTasksAPI, updateTaskAPI, AddTaskAPI } from "../../services/task/taskService";
 import AlertMessage from "../Alert/AlertMessage";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css"; 
@@ -20,6 +20,7 @@ import axios from "axios";
 import { BASE_URL } from "../../utils/url";
 
 const TasksList = () => {
+  const [newTaskName, setNewTaskName] = useState("");
 
   const updateAuraPointsAndBadge = async () => {
     const badgeThresholds = [
@@ -99,11 +100,7 @@ const TasksList = () => {
           }
         );
 
-        // Optional: Send badge email
-        await axios.post(`${BASE_URL}/send-badge-email`, {
-          email: storedUser.email,
-          badgeName: earnedBadge.name,
-        });
+
 
         // Save notification to DB
         await axios.post(
@@ -124,45 +121,29 @@ const TasksList = () => {
     queryKey: ["list-tasks"],
   });
 
-  // Calculate progress percentages
-  const calculateTaskProgress = (tasks) => {
-    if (!Array.isArray(tasks)) return { completed: 0, incomplete: 0 };
-
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.filter(task => task.type === "complete").length;
-    const incompleteTasks = totalTasks - completedTasks;
-
-    const completedPercentage = (completedTasks / totalTasks) * 100;
-    const incompletePercentage = 100 - completedPercentage;
-
-    return {
-      completed: completedPercentage,
-      incomplete: incompletePercentage
-    };
-  };
-
-  const { completed, incomplete } = calculateTaskProgress(data);
-
-  // Determine motivational message
-  const getMotivationalMessage = () => {
-    if (completed === 0) {
-      return "Let's get started! You're capable of completing these tasks!";
-    }
-    if (completed <= 50) {
-      return "Great progress! Keep going to complete more tasks!";
-    }
-    if (completed < 100) {
-      return "You're almost there! Finish strong!";
-    }
-    return "Add Tasks to know your progress!";
-  };
 
   // Navigate
   const navigate = useNavigate();
 
-  // Mutation for delete
+  // Mutations
   const { mutateAsync: deleteTask } = useMutation({mutationFn:deleteTaskAPI});
   const { mutateAsync: updateTask } = useMutation({ mutationFn: updateTaskAPI });
+  const { mutateAsync: addTask, isPending: isAdding } = useMutation({ mutationFn: AddTaskAPI });
+
+  const handleAddTask = async (e) => {
+    e.preventDefault();
+    if (!newTaskName.trim()) return;
+    try {
+      await addTask({ name: newTaskName, type: "incomplete" });
+      setNewTaskName("");
+      toast.success("Task added successfully!");
+      refetch();
+    } catch (err) {
+      console.error("Error adding task:", err);
+      toast.error("Failed to add task.");
+    }
+  };
+
 
   // Delete handler
   const handleDelete = async (id) => {
@@ -208,125 +189,105 @@ const TasksList = () => {
     : [];
 
   return (
-    <div className="max-w-4xl mx-auto my-10 bg-white p-10 rounded-lg shadow-lg">
-      <h2 className="text-3xl font-semibold text-gray-800 mb-6">Tasks</h2>
+    <div className="max-w-4xl mx-auto my-10 p-8 bg-white rounded-lg shadow-md">
+      <h2 className="mb-6 text-2xl text-center font-extrabold text-gray-800">
+        Your Tasks
+      </h2>
 
-      {/* Display motivational message */}
-      <div className="bg-blue-100 p-4 rounded-md text-center mb-6">
-        <p className="text-lg font-semibold text-blue-700">{getMotivationalMessage()}</p>
-      </div>
+      {/* Add Task Form */}
+      <form onSubmit={handleAddTask} className="mb-8 relative flex items-center space-x-4">
+        <div className="flex-1">
+          <input
+            type="text"
+            value={newTaskName}
+            onChange={(e) => setNewTaskName(e.target.value)}
+            placeholder="What needs to be done?"
+            className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-4 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            disabled={isAdding}
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={!newTaskName.trim() || isAdding}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline flex items-center gap-2"
+        >
+          {isAdding ? "Adding..." : <><FaPlus className="text-sm" /> Add</>}
+        </button>
+      </form>
 
       {/* Display alert message */}
       {isLoading && (
-        <AlertMessage type="loading" message={"Loading Tasks..."} />
+        <div className="mb-6"><AlertMessage type="loading" message={"Loading Tasks..."} /></div>
       )}
       {isError && (
-        <AlertMessage
+        <div className="mb-6"><AlertMessage
           type="error"
           message={
             error?.response?.data?.message ||
             "Something happened, please try again later"
           }
-        />
+        /></div>
       )}
 
-      {/* Task Progress Section */}
-      {Array.isArray(data) && data.length > 0 && (
-        <div className="mb-8">
-          <h3 className="text-2xl font-semibold text-gray-800 mb-4">
-            Task Completion Progress
-          </h3>
-          <div className="flex space-x-16 items-center justify-center">
-            {/* Completed Tasks Donut Progress */}
-            <div className="w-40 h-40">
-              <CircularProgressbar
-                value={completed}
-                text={`${Math.round(completed)}%`}
-                styles={{
-                  path: {
-                    stroke: "#4caf50", // Green for completed tasks
-                    strokeLinecap: "round",
-                  },
-                  trail: {
-                    stroke: "#e0e0e0", // Grey background for the circle
-                  },
-                  text: {
-                    fill: "#4caf50", // Green text for percentage
-                    fontSize: "30px", 
-                  },
-                }}
-              />
-              <span className="block text-center text-lg">Completed</span>
-            </div>
-            
-            {/* Incomplete Tasks Donut Progress */}
-            <div className="w-40 h-40">
-              <CircularProgressbar
-                value={incomplete}
-                text={`${Math.round(incomplete)}%`}
-                styles={{
-                  path: {
-                    stroke: "#f44336", // Red for incomplete tasks
-                    strokeLinecap: "round",
-                  },
-                  trail: {
-                    stroke: "#e0e0e0", // Grey background for the circle
-                  },
-                  text: {
-                    fill: "#f44336", // Red text for percentage
-                    fontSize: "30px", 
-                  },
-                }}
-              />
-              <span className="block text-center text-lg">Incomplete</span>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Task List */}
-      <ul className="space-y-6">
-        {sortedTasks.map((task) => (
-          <li
-            key={task?._id}
-            className="flex justify-between items-center bg-gray-50 p-4 rounded-md"
-          >
-            <div>
-              <span className="text-gray-800 text-xl">{task?.name}</span>
-              <span
-                className={`ml-2 px-3 inline-flex text-sm leading-5 font-semibold rounded-full ${
-                  task.type === "complete"
-                    ? "bg-green-100 text-green-800"
-                    : "bg-red-100 text-red-800"
-                }`}
-              >
-                {task?.type?.charAt(0).toUpperCase() + task?.type?.slice(1)}
-              </span>
-            </div>
-            <div className="flex space-x-4">
-              {/* Show Toggle button for all tasks */}
-              <Switch
-                checked={task.type === "complete"}
-                onChange={() => task.type !== "complete" && handleToggleComplete(task)}
-                className={`${task.type === "complete" ? "bg-green-500" : "bg-gray-200"} relative inline-flex h-6 w-11 items-center rounded-full`}
-              >
-                <span className="sr-only">Toggle Task Completion</span>
-                <span
-                  className={`inline-block h-4 w-4 transform ${
-                    task.type === "complete" ? "translate-x-6 bg-green-600" : "translate-x-1 bg-blue-500"
-                  } rounded-full transition-transform`}
-                />
-              </Switch>
+      <div className="space-y-4">
+        {sortedTasks.length === 0 && !isLoading && !isError ? (
+          <div className="text-center py-10 text-gray-500">
+            <p className="text-lg">No tasks yet.</p>
+            <p className="text-sm mt-1">Add a task above to get started!</p>
+          </div>
+        ) : (
+          sortedTasks.map((task) => (
+            <div
+              key={task?._id}
+              className={`flex justify-between items-center p-4 rounded-md border ${
+                task.type === "complete" 
+                  ? "bg-gray-50 border-gray-200" 
+                  : "bg-white border-gray-300"
+              }`}
+            >
+              <div className="flex items-center gap-4 flex-1">
+                <Switch
+                  checked={task.type === "complete"}
+                  onChange={() => task.type !== "complete" && handleToggleComplete(task)}
+                  className={`${
+                    task.type === "complete" ? "bg-green-500" : "bg-gray-300"
+                  } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none`}
+                >
+                  <span className="sr-only">Toggle Task Completion</span>
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      task.type === "complete" ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </Switch>
+                <div className="flex flex-col">
+                  <span className={`text-base font-medium ${task.type === "complete" ? "text-gray-500 line-through" : "text-gray-800"}`}>
+                    {task?.name}
+                  </span>
+                  <span
+                    className={`mt-0.5 inline-flex w-max items-center px-2 py-0.5 rounded text-xs font-semibold ${
+                      task.type === "complete"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-blue-100 text-blue-800"
+                    }`}
+                  >
+                    {task?.type === "complete" ? "Completed" : "In Progress"}
+                  </span>
+                </div>
+              </div>
               <button
                 onClick={() => handleDelete(task?._id)}
-                className="text-red-500 hover:text-red-700"
+                className="ml-3 p-2 text-gray-500 hover:text-red-500 rounded focus:outline-none"
+                title="Delete task"
               >
-                <FaTrash />
+                <FaTrash size={16} />
               </button>
             </div>
-          </li>
-        ))}
-      </ul>
+          ))
+        )}
+      </div>
     </div>
   );
 };

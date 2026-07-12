@@ -12,7 +12,7 @@ import timetableRouter from './routes/timetableRoutes.js';
 import notificationRouter from './routes/notificationRoutes.js';
 import missionRouter from './routes/missionRoutes.js';
 import upload from './config/cloudinary.js';
-import sendEmail from './utils/sendEmail.js';
+
 import adminRouter from './routes/adminRoutes.js';
 import dotenv from 'dotenv';
 
@@ -70,25 +70,7 @@ app.use(cors(corsOptions));
 });
 
 
-app.post("/send-badge-email", async (req, res) => {
-  const { email, badgeName } = req.body;
 
-  if (!email || !badgeName) {
-      return res.status(400).json({ message: "Email and badge name are required" });
-  }
-
-  const messageContent = `<h3>Congratulations!</h3>
-      <p>You have earned the <strong>${badgeName}</strong> badge! 🎉</p>
-      <p>Keep up the great work and continue earning more rewards.</p>`;
-
-  try {
-      await sendEmail(email, messageContent);
-      res.status(200).json({ message: "Badge email sent successfully" });
-  } catch (error) {
-      console.error("Error sending badge email:", error);
-      res.status(500).json({ message: "Failed to send badge email" });
-  }
-});
 
 
 // app.post('/api/v1/upload', (req, res) => {
